@@ -30,8 +30,17 @@ class Index extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
   config: Config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: '首页',
+    usingComponents: {
+      'htmltowxml': 'plugin://htmltowxml/view'
+    }
   }
+
+  state = {
+    html: '<h1>htmltowxml</h1>'
+  }
+
+
 
   componentWillMount () { }
 
@@ -43,7 +52,30 @@ class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () { }
+  componentDidShow () { 
+    const REG_STYLE = /( style="[^"]+")/ig;
+    const REG_TARGET = /( target="[^"]+")/ig;
+    const REG_CLASS = /( class="[^"]+")/ig;
+    const REG_TABLE = /<(\/)?table[^>]*>/ig;
+    const REG_TBODY = /<(\/)?tbody>/ig;
+    const REG_TR = /<(\/)?tr>/ig;
+    const REG_TD = /<(\/)?td[^>]*>/ig;
+    const REG_NOTES = /<![^>]+->/ig;
+    const REG_N = /\n/g;
+    Taro.request({
+      url: 'http://fe.leeapps.cn/weekly/issues?id=430&category=2'
+    }).then(res => res.data.data)
+      .then(data => {
+        // console.log(data)
+        const datas = data[0]
+        let html = datas.content
+        html = html.replace(REG_TABLE,'').replace(REG_STYLE, '').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '')
+        console.log(html)
+        this.setState({
+          html: html
+        })
+      })
+  }
 
   componentDidHide () { }
 
@@ -62,14 +94,15 @@ class Index extends Component {
     counterStore.incrementAsync()
   }
 
+  onTapLink = (src) => {
+    console.log(src)
+  }
+
   render () {
-    const { counterStore: { counter } } = this.props
+    const { html } = this.state
     return (
       <View className='index'>
-        <Button onClick={this.increment}>+</Button>
-        <Button onClick={this.decrement}>-</Button>
-        <Button onClick={this.incrementAsync}>Add Async</Button>
-        <Text>{counter}</Text>
+        <htmltowxml text={html} padding={20} bindWxmlTagATap={this.onTapLink}></htmltowxml>
       </View>
     )
   }

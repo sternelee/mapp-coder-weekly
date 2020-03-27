@@ -34,6 +34,12 @@ class App extends Component {
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
+    },
+    plugins: {
+      "htmltowxml": {
+        "version": "1.4.0",
+        "provider": "wxa51b9c855ae38f3c"
+      }
     }
   }
 
