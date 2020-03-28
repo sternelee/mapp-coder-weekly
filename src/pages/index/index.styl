@@ -1,0 +1,24 @@
+.menu
+  font-size 32px
+  display flex
+  flex-direction row
+
+.title
+  font-size 36px
+
+.aside
+  position fixed
+  left: 0
+  top: 0
+  height 100%
+  width 50%
+  background #ddd
+  transition transform .2s linear
+  &.hide
+    transform translateX(-100%)
+  .category
+    font-size 30px
+  .footer
+    position: absolute
+    bottom 0
+    right 0

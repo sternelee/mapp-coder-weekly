@@ -37,12 +37,19 @@ class Index extends Component {
   }
 
   state = {
-    html: '<h1>htmltowxml</h1>'
+    title: '',
+    html: '',
+    aside: false,
+    categorys: [],
+    category: 2,
+    pid: 430
   }
 
 
 
-  componentWillMount () { }
+  componentWillMount () { 
+    this.getCategorys()
+  }
 
   componentWillReact () {
     console.log('componentWillReact')
@@ -53,28 +60,7 @@ class Index extends Component {
   componentWillUnmount () { }
 
   componentDidShow () { 
-    const REG_STYLE = /( style="[^"]+")/ig;
-    const REG_TARGET = /( target="[^"]+")/ig;
-    const REG_CLASS = /( class="[^"]+")/ig;
-    const REG_TABLE = /<(\/)?table[^>]*>/ig;
-    const REG_TBODY = /<(\/)?tbody>/ig;
-    const REG_TR = /<(\/)?tr>/ig;
-    const REG_TD = /<(\/)?td[^>]*>/ig;
-    const REG_NOTES = /<![^>]+->/ig;
-    const REG_N = /\n/g;
-    Taro.request({
-      url: 'http://fe.leeapps.cn/weekly/issues?id=430&category=2'
-    }).then(res => res.data.data)
-      .then(data => {
-        // console.log(data)
-        const datas = data[0]
-        let html = datas.content
-        html = html.replace(REG_TABLE,'').replace(REG_STYLE, '').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '')
-        console.log(html)
-        this.setState({
-          html: html
-        })
-      })
+    this.getIssues()
   }
 
   componentDidHide () { }
@@ -94,15 +80,119 @@ class Index extends Component {
     counterStore.incrementAsync()
   }
 
-  onTapLink = (src) => {
+  getCategorys = () => {
+    Taro.request({
+      url: 'http://192.168.3.48:3000/weekly/categorys'
+    }).then(res => res.data.data)
+      .then(data => {
+        this.setState({
+          categorys: data
+        })
+      })
+  }
+
+  getIssues = () => {
+    Taro.showLoading({
+      title: '数据加载中'
+    })
+    const { category, pid } = this.state
+    Taro.request({
+      url: `http://192.168.3.48:3000/weekly/issues?id=${pid}&category=${category}`
+    }).then(res => res.data.data)
+      .then(data => {
+        if (data[0]) {
+          this.parseData(data[0])
+        } else {
+          this.getRSS()
+        }
+      })
+  }
+
+  getRSS = () => {
+    const { pid, category } = this.state
+    Taro.request({
+      url: `http://192.168.3.48:3000/weekly/rss?id=${pid}&category=${category}`
+    }).then(res => res.data.data)
+      .then(data => {
+        console.log(data)
+      })
+  }
+
+  parseData = (data) => {
+    console.log(data)
+    Taro.hideLoading()
+    const REG_STYLE = /( style="[^"]+")/ig;
+    const REG_TARGET = /( target="[^"]+")/ig;
+    const REG_CLASS = /( class="[^"]+")/ig;
+    const REG_TABLE = /<(\/)?table[^>]*>/ig;
+    const REG_TBODY = /<(\/)?tbody>/ig;
+    const REG_TR = /<(\/)?tr>/ig;
+    const REG_TD = /<(\/)?td[^>]*>/ig;
+    const REG_NOTES = /<![^>]+->/ig;
+    const REG_N = /\n/g;
+    let html = data.content
+    html = html.replace(REG_TABLE,'').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '').replace('640', '320')
+    // console.log(html)
+    this.setState({
+      title: data.title,
+      html: html
+    })
+  }
+
+  onCategory = (id) => {
+    this.setState({
+      pid: 'latest',
+      category: id
+    }, () => this.getIssues())
+  }
+
+  onAside = () => {
+    const { aside } = this.state
+    this.setState({
+      aside: !aside
+    }
+    )
+  }
+
+  onPage = (p) => {
+    const { pid } = this.state
+    this.setState({
+      pid: pid + p
+    }, () => this.getIssues())
+  }
+
+  tabLink = (src) => {
     console.log(src)
   }
 
   render () {
-    const { html } = this.state
+    const { title, html, categorys, aside } = this.state
     return (
       <View className='index'>
-        <htmltowxml text={html} padding={20} bindWxmlTagATap={this.onTapLink}></htmltowxml>
+        <View className='menu'>
+          <Button onClick={this.onAside}>菜单</Button>
+          <Button onClick={this.onPage.bind(this, -1)}>上一篇</Button>
+          <Button onClick={this.onPage.bind(this, 1)}>下一篇</Button>
+        </View>
+        <View className='title'>
+          { title }
+        </View>
+        {
+          html &&
+          <htmltowxml text={html} padding={20} bindWxmlTagATap={this.tabLink}></htmltowxml>
+        }
+        <View className={aside ? 'aside' : 'aside hide'}>
+          {
+            categorys.map(v => 
+              <View className='category' key={v.id} onClick={this.onCategory.bind(this, v.id)}>
+                  {v.title}
+              </View>
+            )
+          }
+          <View className='footer'>
+            <Button onClick={this.onAside}>收回</Button>
+          </View>
+        </View>
       </View>
     )
   }
