@@ -110,11 +110,14 @@ class Index extends Component {
 
   getRSS = () => {
     const { pid, category } = this.state
+    Taro.showLoading({
+      title: '正在爬取中'
+    })
     Taro.request({
       url: `http://192.168.3.48:3000/weekly/rss?id=${pid}&category=${category}`
     }).then(res => res.data.data)
       .then(data => {
-        console.log(data)
+        this.parseData(data)
       })
   }
 
