@@ -144,7 +144,7 @@ class Index extends Component {
 
   onCategory = (id) => {
     this.setState({
-      pid: 'latest',
+      pid: 0,
       category: id
     }, () => this.getIssues())
   }
