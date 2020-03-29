@@ -1,21 +1,25 @@
 import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text } from '@tarojs/components'
+import { View, Button, Text, Image, RichText } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
+import IconFont from '../../components/index.weapp'
+import parseHTML from '../../utils/parse'
 
 import './index.styl'
 
+const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362']
+
 type PageStateProps = {
   counterStore: {
-    counter: number,
-    increment: Function,
-    decrement: Function,
+    counter: number
+    increment: Function
+    decrement: Function
     incrementAsync: Function
   }
 }
 
 interface Index {
-  props: PageStateProps;
+  props: PageStateProps
 }
 
 @inject('counterStore')
@@ -31,6 +35,7 @@ class Index extends Component {
    */
   config: Config = {
     navigationBarTitleText: '首页',
+    navigationStyle: 'custom',
     usingComponents: {
       'htmltowxml': 'plugin://htmltowxml/view'
     }
@@ -39,15 +44,24 @@ class Index extends Component {
   state = {
     title: '',
     html: '',
+    nodes: [],
     aside: false,
     categorys: [],
     category: 2,
-    pid: 430
+    pid: 430,
+    top: 0,
+    topH: 0
   }
 
 
 
-  componentWillMount () { 
+  componentWillMount () {
+    const menuBtn = Taro.getMenuButtonBoundingClientRect()
+    console.log(menuBtn)
+    this.setState({
+      top: menuBtn.top + 2,
+      topH: menuBtn.height
+    })
     this.getCategorys()
   }
 
@@ -101,7 +115,7 @@ class Index extends Component {
     }).then(res => res.data.data)
       .then(data => {
         if (data[0]) {
-          this.parseData(data[0])
+          this.parseIssue(data[0])
         } else {
           this.getRSS()
         }
@@ -117,28 +131,29 @@ class Index extends Component {
       url: `http://192.168.3.48:3000/weekly/rss?id=${pid}&category=${category}`
     }).then(res => res.data.data)
       .then(data => {
-        this.parseData(data)
+        this.parseIssue(data)
       })
   }
 
-  parseData = (data) => {
-    console.log(data)
+  parseIssue = (data) => {
+    // console.log(data)
     Taro.hideLoading()
-    const REG_STYLE = /( style="[^"]+")/ig;
+    // const REG_STYLE = /( style="[^"]+")/ig;
     const REG_TARGET = /( target="[^"]+")/ig;
-    const REG_CLASS = /( class="[^"]+")/ig;
+    // const REG_CLASS = /( class="[^"]+")/ig;
     const REG_TABLE = /<(\/)?table[^>]*>/ig;
     const REG_TBODY = /<(\/)?tbody>/ig;
     const REG_TR = /<(\/)?tr>/ig;
-    const REG_TD = /<(\/)?td[^>]*>/ig;
+    // const REG_TD = /<(\/)?td[^>]*>/ig;
     const REG_NOTES = /<![^>]+->/ig;
     const REG_N = /\n/g;
     let html = data.content
-    html = html.replace(REG_TABLE,'').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '').replace('640', '320')
-    // console.log(html)
+    html = html.replace(REG_TABLE,'').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '')
+    const nodes = parseHTML(html)
+    console.log(nodes[0].nodes[0].nodes)
     this.setState({
       title: data.title,
-      html: html
+      nodes: nodes[0].nodes[0].nodes.filter(v => v.nodes.length)
     })
   }
 
@@ -169,31 +184,37 @@ class Index extends Component {
   }
 
   render () {
-    const { title, html, categorys, aside } = this.state
+    const { top, topH, title, categorys, category, aside, nodes } = this.state
+    const asidePd = top + topH
     return (
       <View className='index'>
+        <View className='header' style={{background: colors[category - 1], padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
+          <View onClick={this.onAside}>
+            <IconFont name='caidan' size={50} color='#fff' />
+          </View>
+          <Text className='title'>{categorys[category-1].title}</Text>
+        </View>
         <View className='menu'>
-          <Button onClick={this.onAside}>菜单</Button>
           <Button onClick={this.onPage.bind(this, -1)}>上一篇</Button>
           <Button onClick={this.onPage.bind(this, 1)}>下一篇</Button>
         </View>
         <View className='title'>
           { title }
         </View>
-        {
+        {/* {
           html &&
           <htmltowxml text={html} padding={20} bindWxmlTagATap={this.tabLink}></htmltowxml>
-        }
-        <View className={aside ? 'aside' : 'aside hide'}>
+        } */}
+        <View className={aside ? 'aside' : 'aside hide'} onClick={this.onAside}>
+          <View className='inner' style={{paddingTop: `${asidePd}px`}}>
           {
             categorys.map(v => 
-              <View className='category' key={v.id} onClick={this.onCategory.bind(this, v.id)}>
-                  {v.title}
+              <View className={v.id === category ? 'category on' : 'category'} key={v.id} onClick={this.onCategory.bind(this, v.id)} style={{background: v.id === category ? colors[v.id - 1] : ''}}>
+                <Image src={v.img} mode='scaleToFill' />
+                <Text>{v.title}</Text>
               </View>
             )
           }
-          <View className='footer'>
-            <Button onClick={this.onAside}>收回</Button>
           </View>
         </View>
       </View>
