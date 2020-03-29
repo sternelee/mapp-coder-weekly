@@ -1,6 +1,6 @@
 {
   "symbol_url": "//at.alicdn.com/t/font_1721213_hly83tf7fa.js",
-  "save_dir": "./src/components/",
+  "save_dir": "./src/components/iconfont",
   "use_typescript": true,
   "platforms": ["weapp"],
   "use_rpx": true,

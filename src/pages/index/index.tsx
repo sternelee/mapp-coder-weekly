@@ -1,8 +1,9 @@
 import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text, Image, RichText } from '@tarojs/components'
+import { View, Button, Text, Image } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
-import IconFont from '../../components/index.weapp'
+import IconFont from '../../components/iconfont'
+import HtmlIssue from '../../components/HtmlIssue'
 import parseHTML from '../../utils/parse'
 
 import './index.styl'
@@ -149,11 +150,12 @@ class Index extends Component {
     const REG_N = /\n/g;
     let html = data.content
     html = html.replace(REG_TABLE,'').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '')
-    const nodes = parseHTML(html)
-    console.log(nodes[0].nodes[0].nodes)
+    const nodes = parseHTML(html)[0].nodes[0].nodes.filter(v => v.nodes.length)
+    // console.log(JSON.stringify(nodes))
     this.setState({
       title: data.title,
-      nodes: nodes[0].nodes[0].nodes.filter(v => v.nodes.length)
+      html,
+      nodes
     })
   }
 
@@ -179,12 +181,12 @@ class Index extends Component {
     }, () => this.getIssues())
   }
 
-  tabLink = (src) => {
+  onLink = (src) => {
     console.log(src)
   }
 
   render () {
-    const { top, topH, title, categorys, category, aside, nodes } = this.state
+    const { top, topH, title, categorys, category, aside, html, nodes } = this.state
     const asidePd = top + topH
     return (
       <View className='index'>
@@ -201,10 +203,11 @@ class Index extends Component {
         <View className='title'>
           { title }
         </View>
-        {/* {
+        {/* <HtmlIssue nodes={nodes} onClick={this.onLink} /> */}
+        {
           html &&
           <htmltowxml text={html} padding={20} bindWxmlTagATap={this.tabLink}></htmltowxml>
-        } */}
+        }
         <View className={aside ? 'aside' : 'aside hide'} onClick={this.onAside}>
           <View className='inner' style={{paddingTop: `${asidePd}px`}}>
           {
