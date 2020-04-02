@@ -14,8 +14,7 @@ function advance(n) {
 function createASTElement(tag, attrs) {
   // 主节点
   return {
-    tag,
-    lowerCasedTag: tag.toLowerCase(),
+    tag: tag.toLowerCase(),
     attrs,
     // parent,
     nodes: []
@@ -94,7 +93,7 @@ function parseEndTag() {
 
     // 从栈顶往栈底找，直到找到栈中离的最近的同类型标签
     for (pos = stack.length - 1; pos >= 0; pos--) {
-      if (stack[pos].lowerCasedTag === lowerCasedTagName) {
+      if (stack[pos].tag === lowerCasedTagName) {
         break;
       }
     }
@@ -107,8 +106,6 @@ function parseEndTag() {
   }
 }
 
-const defaultTagRE = /\{\{((?:.|\n)+?)\}\}/g;
-
 function parseText(text) {
   // 文本节点，去掉空文本
   !!text.replace(/ /g, '') && currentParent.nodes.push({
@@ -117,7 +114,7 @@ function parseText(text) {
   });
 }
 
-function parseHTML(_html: string) {
+function parser(_html: string) {
   html = `<body>${_html}</body>`;
 
   while (html) {
@@ -139,9 +136,10 @@ function parseHTML(_html: string) {
     }
 
     //-- 匹配文本 --
-    let text, rest;
+    // let text, rest;
+    let text
     if (textEnd >= 0) {
-      rest = html.slice(textEnd);
+      // rest = html.slice(textEnd);
       text = html.substring(0, textEnd);
       advance(textEnd);
     }
@@ -155,4 +153,4 @@ function parseHTML(_html: string) {
   return root.nodes;
 }
 
-export default parseHTML
+export default parser

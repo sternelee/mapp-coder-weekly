@@ -2,13 +2,13 @@ import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Button, Text, Image } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
+import RenderView from '../../components/RenderView'
 import IconFont from '../../components/iconfont'
-import HtmlIssue from '../../components/HtmlIssue'
 import parseHTML from '../../utils/parse'
 
 import './index.styl'
 
-const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362']
+const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667']
 
 type PageStateProps = {
   counterStore: {
@@ -35,21 +35,17 @@ class Index extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
   config: Config = {
-    navigationBarTitleText: '首页',
-    navigationStyle: 'custom',
-    usingComponents: {
-      'htmltowxml': 'plugin://htmltowxml/view'
-    }
+    navigationBarTitleText: '',
+    navigationStyle: 'custom'
   }
 
   state = {
     title: '',
-    html: '',
     nodes: [],
     aside: false,
     categorys: [],
-    category: 2,
-    pid: 430,
+    category: 5,
+    pid: 299,
     top: 0,
     topH: 0
   }
@@ -97,7 +93,7 @@ class Index extends Component {
 
   getCategorys = () => {
     Taro.request({
-      url: 'http://192.168.3.48:3000/weekly/categorys'
+      url: 'http://127.0.0.1:3000/weekly/categorys'
     }).then(res => res.data.data)
       .then(data => {
         this.setState({
@@ -112,7 +108,7 @@ class Index extends Component {
     })
     const { category, pid } = this.state
     Taro.request({
-      url: `http://192.168.3.48:3000/weekly/issues?id=${pid}&category=${category}`
+      url: `http://127.0.0.1:3000/weekly/issues?id=${pid}&category=${category}`
     }).then(res => res.data.data)
       .then(data => {
         if (data[0]) {
@@ -129,7 +125,7 @@ class Index extends Component {
       title: '正在爬取中'
     })
     Taro.request({
-      url: `http://192.168.3.48:3000/weekly/rss?id=${pid}&category=${category}`
+      url: `http://127.0.0.1:3000/weekly/rss?id=${pid}&category=${category}`
     }).then(res => res.data.data)
       .then(data => {
         this.parseIssue(data)
@@ -137,24 +133,10 @@ class Index extends Component {
   }
 
   parseIssue = (data) => {
-    // console.log(data)
     Taro.hideLoading()
-    // const REG_STYLE = /( style="[^"]+")/ig;
-    const REG_TARGET = /( target="[^"]+")/ig;
-    // const REG_CLASS = /( class="[^"]+")/ig;
-    const REG_TABLE = /<(\/)?table[^>]*>/ig;
-    const REG_TBODY = /<(\/)?tbody>/ig;
-    const REG_TR = /<(\/)?tr>/ig;
-    // const REG_TD = /<(\/)?td[^>]*>/ig;
-    const REG_NOTES = /<![^>]+->/ig;
-    const REG_N = /\n/g;
-    let html = data.content
-    html = html.replace(REG_TABLE,'').replace(REG_TARGET,'').replace(REG_NOTES,'').replace(REG_TBODY,'').replace(REG_TR,'').replace(/td>/ig, 'div>').replace(/<td[^>]*>/ig, '<div').replace(REG_N, '')
-    const nodes = parseHTML(html)[0].nodes[0].nodes.filter(v => v.nodes.length)
-    // console.log(JSON.stringify(nodes))
+    const nodes = parseHTML(data.content).filter(v => v.nodes.length)
     this.setState({
       title: data.title,
-      html,
       nodes
     })
   }
@@ -181,12 +163,12 @@ class Index extends Component {
     }, () => this.getIssues())
   }
 
-  onLink = (src) => {
+  onTarget = (src) => {
     console.log(src)
   }
 
   render () {
-    const { top, topH, title, categorys, category, aside, html, nodes } = this.state
+    const { top, topH, title, categorys, category, aside, nodes } = this.state
     const asidePd = top + topH
     return (
       <View className='index'>
@@ -197,17 +179,15 @@ class Index extends Component {
           <Text className='title'>{categorys[category-1].title}</Text>
         </View>
         <View className='menu'>
-          <Button onClick={this.onPage.bind(this, -1)}>上一篇</Button>
-          <Button onClick={this.onPage.bind(this, 1)}>下一篇</Button>
+          <Text onClick={this.onPage.bind(this, -1)}>« Prev</Text>
+          <Text onClick={this.onPage.bind(this, 1)}>Next »</Text>
         </View>
         <View className='title'>
           { title }
         </View>
-        <HtmlIssue nodes={nodes} onClick={this.onLink} />
-        {/* {
-          html &&
-          <htmltowxml text={html} padding={20} bindWxmlTagATap={this.tabLink}></htmltowxml>
-        } */}
+        {
+          nodes.map((node, index) => <RenderView key={index} tag={node.tag} attrs={node.attrs} onClick={this.onTarget} nodes={node.nodes} />)
+        }
         <View className={aside ? 'aside' : 'aside hide'} onClick={this.onAside}>
           <View className='inner' style={{paddingTop: `${asidePd}px`}}>
             <View className='category topic'>每日周报</View>
