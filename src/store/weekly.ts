@@ -16,7 +16,7 @@ export interface Issue {
   pid: string
   title: string
   content: string
-  contentCn: string
+  content_cn: string
   date: string
 }
 
@@ -24,10 +24,12 @@ export interface WeeklyStoreInterface {
   categorys: Category[]
   category: number
   issue: Issue
+  isCN: boolean
   setMaxPid: (id: number, pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
-  getIssues: (cid: number | string, id?: number) => Promise<string>
+  getIssues: (cid: number | string, id?: number) => Promise<string>,
+  setCN: (bol) => void
 }
 
 
@@ -38,14 +40,18 @@ const weeklyStore: WeeklyStoreInterface = observable({
     pid: '',
     title: '',
     content: '',
-    contentCn: '',
+    content_cn: '',
     date: ''
   },
+  isCN: false,
   setMaxPid (id, pid) {
     this.categorys[id].maxId = pid
   },
   setCategory (id: number) {
     this.category = id
+  },
+  setCN (bol) {
+    this.isCN = bol
   },
   async getCategorys () {
     const { data } = await Taro.request({
@@ -63,6 +69,9 @@ const weeklyStore: WeeklyStoreInterface = observable({
       this.issue = result
       if (id === 0) {
         this.setMaxPid(Number(cid) - 1, Number(result.pid))
+      }
+      if (this.isCN && result.content_cn) {
+        return result.content_cn.replace(/(amp;)/g, '')
       }
       return result.content.replace(/(amp;)/g, '')
     }

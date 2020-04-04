@@ -1,6 +1,6 @@
 import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text, Image, Switch } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
 import RenderView from '../../components/RenderView'
 import IconFont from '../../components/iconfont'
@@ -117,9 +117,31 @@ class Index extends Component {
     })
   }
 
+  onBtnCn = (ev) => {
+    const { content, content_cn } = this.props.weeklyStore.issue
+    const bol = ev.detail.value
+    this.props.weeklyStore.setCN(bol)
+    if (bol && !content_cn) {
+      Taro.showToast({
+        title: '本文还未翻译',
+        duration: 1000
+      })
+    } else if (bol && content_cn) {
+      const nodes = parseHTML(content_cn)
+      this.setState({
+        nodes
+      })
+    } else {
+      const nodes = parseHTML(content)
+      this.setState({
+        nodes
+      })
+    }
+  }
+
   render () {
     const { top, topH, isAside, nodes } = this.state
-    const { categorys, category, issue } = this.props.weeklyStore
+    const { categorys, category, issue, isCN } = this.props.weeklyStore
     const asidePd = top + topH
     const cIndex = category - 1
     const mainColor = colors[cIndex]
@@ -133,7 +155,7 @@ class Index extends Component {
           </View>
           <Text className='title'>{categorys[cIndex].title}</Text>
         </View>
-        <View className='title'>
+        <View className='title' style={{padding: '0 10px'}}>
           { issue.title }
         </View>
         <View className='menu'>
@@ -150,8 +172,14 @@ class Index extends Component {
         </View>
         <View className={isAside ? 'aside' : 'aside hide'}>
           <View className='inner' style={{paddingTop: `${asidePd}px`}}>
-            <View onClick={this.onAside} style={{margin: '0 0 20px 20px'}}>
-              <IconFont name='caidan' size={80} color={mainColor} />
+            <View className='aside-tool'>
+              <View onClick={this.onAside}>
+                <IconFont name='caidan' size={80} color={mainColor} />
+              </View>
+              <View className='btn-cn'>
+                <Text style={{marginRight: '6px'}}>CN</Text>
+                <Switch color={mainColor} checked={isCN} onChange={this.onBtnCn} />
+              </View>
             </View>
             {
               categorys.map((v, index) =>
