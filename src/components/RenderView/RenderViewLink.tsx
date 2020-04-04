@@ -1,6 +1,5 @@
 import Taro from '@tarojs/taro'
-import { Text } from '@tarojs/components'
-import RenderViewImg from './RenderViewImg'
+import { Text, Image } from '@tarojs/components'
 import { NodeType } from './Node'
 
 interface Props {
@@ -15,7 +14,7 @@ function RenderViewLink (props: Props) {
   if (!nodes) return null
   const node = nodes[0]
   return (
-    node.tag === 'text' ? <Text onClick={() => onClick(attrs.href)} className={attrs.class || 'a'} style={attrs.style}>{node.text}</Text> : <RenderViewImg attrs={node.attrs} nodes={node.nodes} />
+    node.tag === 'text' ? <Text className={attrs.class} style={attrs.style} onClick={() => onClick(attrs.href)}>{node.text}</Text> : <Image className={node.attrs.class || 'img'} src={node.attrs.src} mode='scaleToFill' />
   )
 }
 

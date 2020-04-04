@@ -6,10 +6,23 @@ const endTag = new RegExp(`^<\\/${TagName}[^>]*>`);
 
 let html: string;
 let Index = 0;
+let root;
+let currentParent;
+let stack: any[] = [];
+
+function init () {
+  html = ''
+  Index = 0
+  root = null
+  currentParent = null
+  stack = []
+}
+
 function advance(n) {
   Index += n;
   html = html.substring(n);
 }
+
 
 function createASTElement(tag, attrs) {
   // 主节点
@@ -21,9 +34,6 @@ function createASTElement(tag, attrs) {
   };
 }
 
-let root;
-let currentParent;
-const stack: any[] = [];
 
 interface InfaceMatch {
   tagName: string
@@ -149,6 +159,8 @@ function parser(_html: string) {
     }
     text && parseText(text);
   }
+
+  setTimeout(() => init(), 5000)
 
   return root.nodes;
 }

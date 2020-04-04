@@ -5,10 +5,11 @@ import { observer, inject } from '@tarojs/mobx'
 import RenderView from '../../components/RenderView'
 import IconFont from '../../components/iconfont'
 import { WeeklyStoreInterface } from '../../store/weekly'
+import parseHTML from '../../utils/parse'
 
 import './index.styl'
 
-const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', 'rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', 'rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667']
+const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', '#6fccdd', '#da1f26', '#4e8bc9', '#076b8d', '#f15a24']
 
 type PageStateProps = {
   weeklyStore: WeeklyStoreInterface
@@ -36,19 +37,19 @@ class Index extends Component {
 
   state = {
     isAside: false,
-    pid: 481,
     top: 0,
-    topH: 0
+    topH: 0,
+    nodes: []
   }
 
-  componentWillMount () {
+  async componentWillMount () {
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
     })
     this.props.weeklyStore.getCategorys()
-    this.props.weeklyStore.getIssues(1)
+    await this.getIssues(1, 0)
   }
 
   componentWillReact () {
@@ -63,37 +64,45 @@ class Index extends Component {
 
   componentDidHide () { }
 
-  // getRSS = () => {
-  //   const { pid, category } = this.state
-  //   Taro.showLoading({
-  //     title: '正在爬取中'
-  //   })
-  //   Taro.request({
-  //     url: `http://127.0.0.1:3000/weekly/rss?id=${pid}&category=${category}`
-  //   }).then(res => res.data.data)
-  //     .then(data => {
-  //       console.log(data)
-  //     })
-  // }
+  getIssues = async (cid, id = 0) => {
+    Taro.showLoading({
+      title: 'Loading . . .'
+    })
+    const content = await this.props.weeklyStore.getIssues(cid, id)
+    Taro.hideLoading()
+    if (!content) {
+      return Taro.showToast({
+        title: '没有数据',
+        duration: 1000
+      })
+    }
+    const nodes = parseHTML(content)
+    this.setState({
+      nodes
+    })
+  }
 
-  onCategory = (cid) => {
-    this.onAside()
-    this.props.weeklyStore.setCategory(cid)
-    this.props.weeklyStore.getIssues(cid)
+  onCategory = async (cid) => {
+    console.log(cid)
+    this.setState({
+      isAside: false,
+      nodes: []
+    })
+    await this.props.weeklyStore.setCategory(cid)
+    await this.getIssues(cid, 0)
   }
 
   onAside = () => {
     const { isAside } = this.state
+    console.log('isAside', isAside)
     this.setState({
       isAside: !isAside
     })
   }
 
-  onPage = (p) => {
-    const { pid } = this.state
-    this.setState({
-      pid: pid + p
-    })
+  onPage = async (p) => {
+    const { category } = this.props.weeklyStore
+    await this.getIssues(category, p)
   }
 
   onTarget = (src) => {
@@ -109,11 +118,13 @@ class Index extends Component {
   }
 
   render () {
-    const { top, topH, isAside } = this.state
-    const { categorys, category, issue, nodes } = this.props.weeklyStore
+    const { top, topH, isAside, nodes } = this.state
+    const { categorys, category, issue } = this.props.weeklyStore
     const asidePd = top + topH
     const cIndex = category - 1
     const mainColor = colors[cIndex]
+    const maxId = categorys.length ? categorys[category].maxId : 0
+    const curId = Number(issue.pid)
     return (
       <View className='index'>
         <View className='header' style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
@@ -126,21 +137,26 @@ class Index extends Component {
           { issue.title }
         </View>
         <View className='menu'>
-          <Text onClick={this.onPage.bind(this, -1)}>« Prev</Text>
-          <Text onClick={this.onPage.bind(this, 1)}>Next »</Text>
+          <Text onClick={this.onPage.bind(this, curId - 1)}>« Prev</Text>
+          {
+            curId< maxId &&
+            <Text onClick={this.onPage.bind(this, curId + 1)}>Next »</Text>
+          }
         </View>
-        {
+        <View className='issue'>
+        { nodes.length &&
           nodes.map((node, index) => <RenderView key={index} tag={node.tag} attrs={node.attrs} onClick={this.onTarget} nodes={node.nodes} />)
         }
+        </View>
         <View className={isAside ? 'aside' : 'aside hide'}>
           <View className='inner' style={{paddingTop: `${asidePd}px`}}>
             <View onClick={this.onAside} style={{margin: '0 0 20px 20px'}}>
-              <IconFont name='caidan' size={50} color={mainColor} />
+              <IconFont name='caidan' size={80} color={mainColor} />
             </View>
             {
               categorys.map((v, index) =>
                 <View className={index === cIndex ? 'category on' : 'category'} key={index} onClick={this.onCategory.bind(this, v.cid)} style={{background: index === cIndex ? mainColor : ''}}>
-                  <Image src={v.img} mode='scaleToFill' />
+                  <Image src={`cloud://leeapps-b71pw.6c65-leeapps-b71pw-1255591994/weekly/c${index + 1}.png`} mode='scaleToFill' />
                   <Text>{v.title}</Text>
                 </View>
               )

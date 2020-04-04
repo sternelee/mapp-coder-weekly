@@ -1,7 +1,5 @@
 import { observable } from 'mobx'
 import Taro from '@tarojs/taro'
-import { NodeType } from '../components/RenderView/Node'
-import parseHTML from '../utils/parse'
 
 export interface Category {
   id: number
@@ -26,11 +24,10 @@ export interface WeeklyStoreInterface {
   categorys: Category[]
   category: number
   issue: Issue
-  nodes: NodeType[]
   setMaxPid: (id: number, pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
-  getIssues: (cid: number | string, id?: string) => void
+  getIssues: (cid: number | string, id?: number) => Promise<string>
 }
 
 
@@ -44,7 +41,6 @@ const weeklyStore: WeeklyStoreInterface = observable({
     contentCn: '',
     date: ''
   },
-  nodes: [],
   setMaxPid (id, pid) {
     this.categorys[id].maxId = pid
   },
@@ -55,22 +51,22 @@ const weeklyStore: WeeklyStoreInterface = observable({
     const { data } = await Taro.request({
       url: 'https://api.leeapps.cn/cooperpress-categories'
     })
-    this.categorys = data.sort((a, b) => a.cid - b.cid)
+    this.categorys = data.sort((a, b) => a.cid - b.cid).map(v => ({...v, maxId: 0}))
   },
-  async getIssues (cid = '1') {
-    Taro.showLoading({
-      title: 'Loading . . .'
-    })
+  async getIssues (cid = '1', id = 0) {
+    const queryPid = id ? `pid=${id}` : ''
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/cooperpresses?category=${cid}`
+      url: `https://api.leeapps.cn/cooperpresses?category=${cid}${queryPid}`
     })
     const result = data[0]
     if (result) {
       this.issue = result
-      const nodes = parseHTML(result.content.replace(/(amp;)/g, ''))
-      this.nodes = nodes
+      if (id === 0) {
+        this.setMaxPid(Number(cid) - 1, Number(result.pid))
+      }
+      return result.content.replace(/(amp;)/g, '')
     }
-    Taro.hideLoading()
+    return ''
   }
 })
 export default weeklyStore
