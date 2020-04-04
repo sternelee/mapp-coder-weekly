@@ -34,4 +34,8 @@ RenderView.defaultProps = {
   attrs: {}
 }
 
+RenderView.options = {
+  addGlobalClass: true
+}
+
 export default RenderView

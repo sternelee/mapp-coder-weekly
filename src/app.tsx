@@ -3,6 +3,7 @@ import { Provider } from '@tarojs/mobx'
 import Index from './pages/index'
 
 import counterStore from './store/counter'
+import weeklyStore from './store/weekly'
 
 import './app.styl'
 
@@ -13,7 +14,8 @@ import './app.styl'
 // }
 
 const store = {
-  counterStore
+  counterStore,
+  weeklyStore
 }
 
 class App extends Component {
@@ -35,12 +37,6 @@ class App extends Component {
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
-    },
-    plugins: {
-      "htmltowxml": {
-        "version": "1.4.0",
-        "provider": "wxa51b9c855ae38f3c"
-      }
     }
   }
 

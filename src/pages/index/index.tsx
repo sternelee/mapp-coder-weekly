@@ -1,29 +1,24 @@
 import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Button, Text, Image } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
 import RenderView from '../../components/RenderView'
 import IconFont from '../../components/iconfont'
-import parseHTML from '../../utils/parse'
+import { WeeklyStoreInterface } from '../../store/weekly'
 
 import './index.styl'
 
-const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667']
+const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', 'rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', 'rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667']
 
 type PageStateProps = {
-  counterStore: {
-    counter: number
-    increment: Function
-    decrement: Function
-    incrementAsync: Function
-  }
+  weeklyStore: WeeklyStoreInterface
 }
 
 interface Index {
   props: PageStateProps
 }
 
-@inject('counterStore')
+@inject('weeklyStore')
 @observer
 class Index extends Component {
 
@@ -40,26 +35,20 @@ class Index extends Component {
   }
 
   state = {
-    title: '',
-    nodes: [],
-    aside: false,
-    categorys: [],
-    category: 5,
-    pid: 299,
+    isAside: false,
+    pid: 481,
     top: 0,
     topH: 0
   }
 
-
-
   componentWillMount () {
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
-    console.log(menuBtn)
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
     })
-    this.getCategorys()
+    this.props.weeklyStore.getCategorys()
+    this.props.weeklyStore.getIssues(1)
   }
 
   componentWillReact () {
@@ -70,130 +59,87 @@ class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () { 
-    this.getIssues()
-  }
+  componentDidShow () { }
 
   componentDidHide () { }
 
-  increment = () => {
-    const { counterStore } = this.props
-    counterStore.increment()
-  }
+  // getRSS = () => {
+  //   const { pid, category } = this.state
+  //   Taro.showLoading({
+  //     title: '正在爬取中'
+  //   })
+  //   Taro.request({
+  //     url: `http://127.0.0.1:3000/weekly/rss?id=${pid}&category=${category}`
+  //   }).then(res => res.data.data)
+  //     .then(data => {
+  //       console.log(data)
+  //     })
+  // }
 
-  decrement = () => {
-    const { counterStore } = this.props
-    counterStore.decrement()
-  }
-
-  incrementAsync = () => {
-    const { counterStore } = this.props
-    counterStore.incrementAsync()
-  }
-
-  getCategorys = () => {
-    Taro.request({
-      url: 'http://127.0.0.1:3000/weekly/categorys'
-    }).then(res => res.data.data)
-      .then(data => {
-        this.setState({
-          categorys: data
-        })
-      })
-  }
-
-  getIssues = () => {
-    Taro.showLoading({
-      title: '数据加载中'
-    })
-    const { category, pid } = this.state
-    Taro.request({
-      url: `http://127.0.0.1:3000/weekly/issues?id=${pid}&category=${category}`
-    }).then(res => res.data.data)
-      .then(data => {
-        if (data[0]) {
-          this.parseIssue(data[0])
-        } else {
-          this.getRSS()
-        }
-      })
-  }
-
-  getRSS = () => {
-    const { pid, category } = this.state
-    Taro.showLoading({
-      title: '正在爬取中'
-    })
-    Taro.request({
-      url: `http://127.0.0.1:3000/weekly/rss?id=${pid}&category=${category}`
-    }).then(res => res.data.data)
-      .then(data => {
-        this.parseIssue(data)
-      })
-  }
-
-  parseIssue = (data) => {
-    Taro.hideLoading()
-    const nodes = parseHTML(data.content).filter(v => v.nodes.length)
-    this.setState({
-      title: data.title,
-      nodes
-    })
-  }
-
-  onCategory = (id) => {
-    this.setState({
-      pid: 0,
-      category: id
-    }, () => this.getIssues())
+  onCategory = (cid) => {
+    this.onAside()
+    this.props.weeklyStore.setCategory(cid)
+    this.props.weeklyStore.getIssues(cid)
   }
 
   onAside = () => {
-    const { aside } = this.state
+    const { isAside } = this.state
     this.setState({
-      aside: !aside
-    }
-    )
+      isAside: !isAside
+    })
   }
 
   onPage = (p) => {
     const { pid } = this.state
     this.setState({
       pid: pid + p
-    }, () => this.getIssues())
+    })
   }
 
   onTarget = (src) => {
-    console.log(src)
+    Taro.setClipboardData({
+      data: src,
+      success: () => {
+        Taro.showToast({
+          title: '复制成功',
+          duration: 1000
+        })
+      }
+    })
   }
 
   render () {
-    const { top, topH, title, categorys, category, aside, nodes } = this.state
+    const { top, topH, isAside } = this.state
+    const { categorys, category, issue, nodes } = this.props.weeklyStore
     const asidePd = top + topH
+    const cIndex = category - 1
+    const mainColor = colors[cIndex]
     return (
       <View className='index'>
-        <View className='header' style={{background: colors[category - 1], padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
+        <View className='header' style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
           <View onClick={this.onAside}>
             <IconFont name='caidan' size={50} color='#fff' />
           </View>
-          <Text className='title'>{categorys[category-1].title}</Text>
+          <Text className='title'>{categorys[cIndex].title}</Text>
+        </View>
+        <View className='title'>
+          { issue.title }
         </View>
         <View className='menu'>
           <Text onClick={this.onPage.bind(this, -1)}>« Prev</Text>
           <Text onClick={this.onPage.bind(this, 1)}>Next »</Text>
         </View>
-        <View className='title'>
-          { title }
-        </View>
         {
           nodes.map((node, index) => <RenderView key={index} tag={node.tag} attrs={node.attrs} onClick={this.onTarget} nodes={node.nodes} />)
         }
-        <View className={aside ? 'aside' : 'aside hide'} onClick={this.onAside}>
+        <View className={isAside ? 'aside' : 'aside hide'}>
           <View className='inner' style={{paddingTop: `${asidePd}px`}}>
-            <View className='category topic'>每日周报</View>
+            <View onClick={this.onAside} style={{margin: '0 0 20px 20px'}}>
+              <IconFont name='caidan' size={50} color={mainColor} />
+            </View>
             {
-              categorys.map(v => 
-                <View className={v.id === category ? 'category on' : 'category'} key={v.id} onClick={this.onCategory.bind(this, v.id)} style={{background: v.id === category ? colors[v.id - 1] : ''}}>
+              categorys.map((v, index) =>
+                <View className={index === cIndex ? 'category on' : 'category'} key={index} onClick={this.onCategory.bind(this, v.cid)} style={{background: index === cIndex ? mainColor : ''}}>
                   <Image src={v.img} mode='scaleToFill' />
                   <Text>{v.title}</Text>
                 </View>
