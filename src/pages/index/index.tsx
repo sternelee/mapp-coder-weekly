@@ -105,16 +105,26 @@ class Index extends Component {
     await this.getIssues(category, p)
   }
 
-  onTarget = (src) => {
-    Taro.setClipboardData({
-      data: src,
-      success: () => {
-        Taro.showToast({
-          title: '复制成功',
-          duration: 1000
-        })
-      }
-    })
+  onTarget = (src, text) => {
+    console.log(src, text)
+    const isUnsubscribe = /Unsubscribe/i.test(text)
+    const isOnweb = /Read on the Web/i.test(text)
+    if (isUnsubscribe || isOnweb) {
+      Taro.setClipboardData({
+        data: src,
+        success: () => {
+          Taro.showToast({
+            title: '复制成功',
+            duration: 1000
+          })
+        }
+      })
+    } else {
+      const id = src.match(/\/([\d]+)\//)[1]
+      Taro.navigateTo({
+        url: `/pages/post/index?cid=${this.props.weeklyStore.category}&id=${id}`
+      })
+    }
   }
 
   onBtnCn = (ev) => {

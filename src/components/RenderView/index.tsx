@@ -16,13 +16,13 @@ function RenderView (props: Props) {
   return (
     <View className={`${tag} ${attrs.class || ''}`} style={attrs.style}>
       {
-        tag === 'a' && <RenderViewLink onClick={(src) => onClick(src)} attrs={attrs} nodes={nodes} />
+        tag === 'a' && <RenderViewLink onClick={onClick} attrs={attrs} nodes={nodes} />
       }
       {
         tag === 'text' && <Text>{text}</Text>
       }
       {
-        ['a', 'text','img'].indexOf(tag) < 0 && nodes.map((node, index) => <RenderView0 key={index} tag={node.tag} attrs={node.attrs} onClick={(src) => onClick(src)} nodes={node.nodes} text={node.text || ''} />)
+        ['a', 'text','img'].indexOf(tag) < 0 && nodes.map((node, index) => <RenderView0 key={index} tag={node.tag} attrs={node.attrs} onClick={onClick} nodes={node.nodes} text={node.text || ''} />)
       }
     </View>
   )

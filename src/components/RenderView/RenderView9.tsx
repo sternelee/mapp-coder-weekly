@@ -11,7 +11,7 @@ type Props = NodeType & {
 
 function RenderView9 (props: Props) {
   const { tag, attrs, nodes, onClick, text = '' } = props
-  if (tag === 'a') return <RenderViewLink onClick={(src) => onClick(src)} attrs={attrs} nodes={nodes} />
+  if (tag === 'a') return <RenderViewLink onClick={onClick} attrs={attrs} nodes={nodes} />
   if (tag === 'img') return <RenderViewImg attrs={attrs} nodes={nodes} />
   return <Text className={`${tag} ${attrs.class || ''}`} style={attrs.style}>{text}</Text>
 }

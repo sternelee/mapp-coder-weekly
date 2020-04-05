@@ -31,6 +31,8 @@ export interface WeeklyStoreInterface {
   getIssues: (cid: number | string, id?: number) => Promise<string>
   setCN: (bol) => void
   getFetch: (cid, id) => Promise<any>
+  getPost: (cid, id) => Promise<any>
+  fetchPost: (cid, id) => Promise<any>
 }
 
 
@@ -85,6 +87,22 @@ const weeklyStore: WeeklyStoreInterface = observable({
     const queryPid = id ? `&id=${id}` : ''
     const { data } = await Taro.request({
       url: `https://api.leeapps.cn/koa/weekly/fetch?category=${cid}${queryPid}`
+    })
+    return data[0]
+  },
+  async getPost (cid, id) {
+    const { data } = await Taro.request({
+      url: `https://api.leeapps.cn/cooperpress-posts?category=${cid}&pid=${id}&_limit=1`
+    })
+    let result = data[0]
+    if (!result) {
+      result = await this.fetchPost(cid, id)
+    }
+    return result
+  },
+  async fetchPost (cid, id) {
+    const { data } = await Taro.request({
+      url: `https://api.leeapps.cn/koa/weekly/post?category=${cid}&id=${id}`
     })
     return data[0]
   }

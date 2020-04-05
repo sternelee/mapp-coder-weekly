@@ -3,7 +3,7 @@ import { Text, Image } from '@tarojs/components'
 import { NodeType } from './Node'
 
 interface Props {
-  onClick: (href: string) => void
+  onClick: (href: string, text: string | undefined) => void
   attrs: {
     [key: string]: string
   }
@@ -14,7 +14,7 @@ function RenderViewLink (props: Props) {
   if (!nodes) return null
   const node = nodes[0]
   return (
-    node.tag === 'text' ? <Text className={attrs.class} style={attrs.style} onClick={() => onClick(attrs.href)}>{node.text}</Text> : <Image className={node.attrs.class || 'img'} src={node.attrs.src} mode='scaleToFill' />
+    node.tag === 'text' ? <Text className={attrs.class} style={attrs.style} onClick={() => onClick(attrs.href, node.text)}>{node.text}</Text> : <Image className={node.attrs.class || 'img'} src={node.attrs.src} mode='scaleToFill' />
   )
 }
 

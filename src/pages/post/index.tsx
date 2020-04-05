@@ -1,11 +1,22 @@
-import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import RenderView from '../../components/RenderView/RenderView'
-import datas from './datas'
+import { observer, inject } from '@tarojs/mobx'
+import RenderView from '../../components/RenderView'
+import parseHTML from '../../utils/parse'
+import { WeeklyStoreInterface } from '../../store/weekly'
 
 import './index.styl'
 
+type PageStateProps = {
+  weeklyStore: WeeklyStoreInterface
+}
+
+interface Index {
+  props: PageStateProps
+}
+
+@inject('weeklyStore')
+@observer
 class Index extends Component {
 
   /**
@@ -18,16 +29,36 @@ class Index extends Component {
   config: Config = {
     navigationBarTitleText: '详情页'
   }
+  state = {
+    nodes: []
+  }
 
-  onTarget = (src) => {
-    console.log(src)
+  async componentWillMount () {
+    const query = this.$router.params
+    console.log(query)
+    Taro.showLoading({
+      title: 'Loading ...'
+    })
+    const data = await this.props.weeklyStore.getPost(query.cid, query.id)
+    const nodes = parseHTML(data.content)
+    this.setState({
+      nodes
+    })
+    Taro.hideLoading()
+    console.log(data)
+  }
+
+  onTarget = (src, text) => {
+    console.log(src, text)
   }
 
   render () {
+    const { nodes } = this.state
     return (
-      <View className='issue'>
-        {
-          datas.map((node, index) => <RenderView key={index} tag={node.tag} attrs={node.attrs} onClick={this.onTarget} nodes={node.nodes} />)
+      <View className='post'>
+        { 
+          nodes.length &&
+          nodes.map((node, index) => <RenderView key={index} tag={node.tag} attrs={node.attrs} onClick={this.onTarget} nodes={node.nodes} />)
         }
       </View>
     )
