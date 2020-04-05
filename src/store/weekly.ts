@@ -61,7 +61,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
     this.categorys = data.sort((a, b) => a.cid - b.cid).map(v => ({...v, maxId: 0}))
   },
   async getIssues (cid = '1', id = 0) {
-    const queryPid = id ? `pid=${id}` : ''
+    const queryPid = id ? `&pid=${id}` : ''
     const { data } = await Taro.request({
       url: `https://api.leeapps.cn/cooperpresses?category=${cid}${queryPid}&_sort=pid:DESC&_limit=1`
     })
@@ -82,7 +82,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
     return ''
   },
   async getFetch (cid, id) {
-    const queryPid = id ? `id=${id}` : ''
+    const queryPid = id ? `&id=${id}` : ''
     const { data } = await Taro.request({
       url: `https://api.leeapps.cn/koa/weekly/fetch?category=${cid}${queryPid}`
     })

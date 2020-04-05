@@ -145,7 +145,7 @@ class Index extends Component {
     const asidePd = top + topH
     const cIndex = category - 1
     const mainColor = colors[cIndex]
-    const maxId = categorys.length ? categorys[category].maxId : 0
+    const maxId = categorys.length ? categorys[cIndex].maxId : 0
     const curId = Number(issue.pid)
     return (
       <View className='index'>
@@ -161,7 +161,7 @@ class Index extends Component {
         <View className='menu'>
           <Text onClick={this.onPage.bind(this, curId - 1)}>« Prev</Text>
           {
-            curId< maxId &&
+            curId < maxId &&
             <Text onClick={this.onPage.bind(this, curId + 1)}>Next »</Text>
           }
         </View>

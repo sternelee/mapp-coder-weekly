@@ -2,7 +2,7 @@
   "symbol_url": "//at.alicdn.com/t/font_1721213_hly83tf7fa.js",
   "save_dir": "./src/components/iconfont",
   "use_typescript": true,
-  "platforms": ["weapp"],
+  "platforms": ["weapp", "tt"],
   "use_rpx": true,
   "trim_icon_prefix": "icon",
   "default_icon_size": 18,
