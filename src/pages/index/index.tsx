@@ -149,8 +149,8 @@ class Index extends Component {
     const curId = Number(issue.pid)
     return (
       <View className='index'>
-        <View className='header' style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
-          <View onClick={this.onAside}>
+        <View className='header' onClick={this.onAside} style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
+          <View>
             <IconFont name='caidan' size={50} color='#fff' />
           </View>
           <Text className='title'>{categorys[cIndex].title}</Text>

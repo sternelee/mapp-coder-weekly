@@ -28,8 +28,9 @@ export interface WeeklyStoreInterface {
   setMaxPid: (id: number, pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
-  getIssues: (cid: number | string, id?: number) => Promise<string>,
+  getIssues: (cid: number | string, id?: number) => Promise<string>
   setCN: (bol) => void
+  getFetch: (cid, id) => Promise<any>
 }
 
 
@@ -62,9 +63,12 @@ const weeklyStore: WeeklyStoreInterface = observable({
   async getIssues (cid = '1', id = 0) {
     const queryPid = id ? `pid=${id}` : ''
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/cooperpresses?category=${cid}${queryPid}`
+      url: `https://api.leeapps.cn/cooperpresses?category=${cid}${queryPid}&_sort=pid:DESC&_limit=1`
     })
-    const result = data[0]
+    let result = data[0]
+    if (!result) {
+      result = await this.getFetch(cid, id)
+    }
     if (result) {
       this.issue = result
       if (id === 0) {
@@ -76,6 +80,13 @@ const weeklyStore: WeeklyStoreInterface = observable({
       return result.content.replace(/(amp;)/g, '')
     }
     return ''
+  },
+  async getFetch (cid, id) {
+    const queryPid = id ? `id=${id}` : ''
+    const { data } = await Taro.request({
+      url: `https://api.leeapps.cn/koa/weekly/fetch?category=${cid}${queryPid}`
+    })
+    return data[0]
   }
 })
 export default weeklyStore
