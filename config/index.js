@@ -31,7 +31,24 @@ const config = {
   },
   defineConstants: {
   },
+  copy: {
+    patterns: [
+      {
+        from: 'src/wemark',
+        to: 'dist/wemark',
+      },
+    ],
+    options: {
+    }
+  },
   mini: {
+    compile: {
+      exclude: [
+        function (modulePath) {
+          return modulePath.indexOf('remarkable') >= 0
+        }
+      ]
+    },
     postcss: {
       autoprefixer: {
         enable: true,

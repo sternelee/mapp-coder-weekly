@@ -25,6 +25,7 @@ export interface WeeklyStoreInterface {
   category: number
   issue: Issue
   isCN: boolean
+  colors: string[]
   setMaxPid: (id: number, pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
@@ -47,6 +48,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
     date: ''
   },
   isCN: false,
+  colors: ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', '#6fccdd', '#da1f26', '#4e8bc9', '#076b8d', '#f15a24'],
   setMaxPid (id, pid) {
     this.categorys[id].maxId = pid
   },
@@ -102,7 +104,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
   },
   async fetchPost (cid, id) {
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/koa/weekly/post?category=${cid}&id=${id}`
+      url: `https://api.leeapps.cn/koa/weekly/post?category=${cid}&id=${id}&type=markdown`
     })
     return data[0]
   }

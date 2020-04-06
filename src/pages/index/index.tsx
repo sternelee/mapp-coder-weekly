@@ -9,8 +9,6 @@ import parseHTML from '../../utils/parse'
 
 import './index.styl'
 
-const colors = ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', '#6fccdd', '#da1f26', '#4e8bc9', '#076b8d', '#f15a24']
-
 type PageStateProps = {
   weeklyStore: WeeklyStoreInterface
 }
@@ -42,13 +40,34 @@ class Index extends Component {
     nodes: []
   }
 
+  onShareAppMessage (ops) {
+    const { category, categorys } = this.props.weeklyStore
+    if (ops.from === 'button') {
+      // 来自页面内转发按钮
+      console.log(ops.target)
+    }
+    const title = categorys[category - 1].title
+    return {
+      title: `程序猿周报-${title}`,
+      path: `pages/index/index`,
+      success: function (res) {
+        // 转发成功
+        console.log("转发成功:" + JSON.stringify(res));
+      },
+      fail: function (res) {
+        // 转发失败
+        console.log("转发失败:" + JSON.stringify(res));
+      }
+    }
+  }
+
   async componentWillMount () {
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
     })
-    this.props.weeklyStore.getCategorys()
+    await this.props.weeklyStore.getCategorys()
     await this.getIssues(1, 0)
   }
 
@@ -151,7 +170,7 @@ class Index extends Component {
 
   render () {
     const { top, topH, isAside, nodes } = this.state
-    const { categorys, category, issue, isCN } = this.props.weeklyStore
+    const { categorys, category, issue, isCN, colors } = this.props.weeklyStore
     const asidePd = top + topH
     const cIndex = category - 1
     const mainColor = colors[cIndex]

@@ -1,6 +1,6 @@
 Component({
   properties: {
-    // caidan
+    // home | caidan
     name: {
       type: String,
     },

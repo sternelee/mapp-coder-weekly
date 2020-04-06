@@ -12,7 +12,7 @@ declare module "*.styl";
 declare namespace JSX {
     interface IntrinsicElements {
         'import': React.DetailedHTMLProps<React.EmbedHTMLAttributes<HTMLEmbedElement>, HTMLEmbedElement>
-        'htmltowxml': any
+        'wemark': any
     }
 }
 
