@@ -74,19 +74,32 @@ class Index extends Component {
     })
     const data = await this.props.weeklyStore.getPost(query.cid, query.id)
     const url = data.url
+    Taro.hideLoading()
+    if (!data.content) {
+      Taro.showToast({
+        title: '无法拉取数据',
+        duration: 1000
+      }).then(() => this.onHome())
+      return
+    }
     const content = fixUrl(data.content, url)
     this.setState({
       cid: Number(query.cid) || 1,
       title: data.title,
       md: content
     })
-    Taro.hideLoading()
   }
 
   onHome = () => {
-    Taro.navigateTo({
-      url: '/pages/index/index'
-    })
+    const len = Taro.getCurrentPages().length
+    if (len > 1) {
+      Taro.navigateBack()
+    } else {
+      Taro.navigateTo({
+        url: '/pages/index/index'
+      })
+    }
+    
   }
 
   render () {
