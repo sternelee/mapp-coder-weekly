@@ -48,7 +48,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
     date: ''
   },
   isCN: false,
-  colors: ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', '#6fccdd', '#da1f26', '#4e8bc9', '#076b8d', '#f15a24'],
+  colors: ['rgb(253, 238, 9)', '#9d3979', '#6ca743', '#202362', '#43b667', '#6fccdd', '#da1f26', '#4e8bc9', '#076b8d', '#f15a24', '#449a45', '#0089bc'],
   setMaxPid (id, pid) {
     this.categorys[id].maxId = pid
   },
