@@ -104,15 +104,16 @@ class Index extends Component {
 
   render () {
     const { md, cid, title, top, topH } = this.state
-    const { colors, categorys } = this.props.weeklyStore
-    const mainColor = colors[cid - 1]
+    const { categorys } = this.props.weeklyStore
+    const issue = categorys.length ? categorys[cid - 1] : {title: '', color: ''}
+    const mainColor = issue.color
     return (
       <View className='post'>
         <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
           <View>
             <IconFont name='home' size={50} color='#fff' />
           </View>
-          <Text className='title'>{categorys[cid - 1].title}</Text>
+          <Text className='title'>{issue.title}</Text>
         </View>
         <View className='title' style={{padding: '10px', background: mainColor}}>
           { title }
