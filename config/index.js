@@ -37,6 +37,7 @@ const config = {
         from: 'src/wemark',
         to: 'dist/wemark',
       },
+      { from: './sitemap.json', to: './dist/'}
     ],
     options: {
     }

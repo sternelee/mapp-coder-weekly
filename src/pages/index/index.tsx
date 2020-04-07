@@ -48,7 +48,7 @@ class Index extends Component {
     }
     const title = categorys[category - 1].title
     return {
-      title: `程序猿周报-${title}`,
+      title: `${title}`,
       path: `pages/index/index`,
       success: function (res) {
         // 转发成功
@@ -170,10 +170,10 @@ class Index extends Component {
 
   render () {
     const { top, topH, isAside, nodes } = this.state
-    const { categorys, category, issue, isCN, colors } = this.props.weeklyStore
+    const { categorys, category, issue, isCN } = this.props.weeklyStore
     const asidePd = top + topH
     const cIndex = category - 1
-    const mainColor = colors[cIndex]
+    const mainColor = categorys.length ? categorys[cIndex].color : ''
     const maxId = categorys.length ? categorys[cIndex].maxId : 0
     const curId = Number(issue.pid)
     return (

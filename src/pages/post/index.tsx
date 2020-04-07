@@ -38,7 +38,8 @@ class Index extends Component {
     md: '',
     title: '',
     top: 0,
-    topH: 0
+    topH: 0,
+    url: ''
   }
 
   onShareAppMessage (ops) {
@@ -49,7 +50,7 @@ class Index extends Component {
       console.log(ops.target)
     }
     return {
-      title: `程序猿周报-${title}`,
+      title: `${title}`,
       path: `pages/post/index?cid=${query.cid}&id=${query.id}`,
       success: function (res) {
         // 转发成功
@@ -86,6 +87,7 @@ class Index extends Component {
     this.setState({
       cid: Number(query.cid) || 1,
       title: data.title,
+      url: data.url,
       md: content
     })
   }
@@ -99,22 +101,35 @@ class Index extends Component {
         url: '/pages/index/index'
       })
     }
-    
+  }
+
+  onCopyUrl = () => {
+    const { url } = this.state
+    Taro.setClipboardData({
+      data: url,
+      success: () => {
+        Taro.showToast({
+          title: '复制原文链接',
+          duration: 1000
+        })
+      }
+    })
   }
 
   render () {
     const { md, cid, title, top, topH } = this.state
-    const { colors, categorys } = this.props.weeklyStore
-    const mainColor = colors[cid - 1]
+    const { categorys } = this.props.weeklyStore
+    const issue = categorys.length ? categorys[cid - 1] : {title: '', color: ''}
+    const mainColor = issue.color
     return (
       <View className='post'>
         <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
           <View>
             <IconFont name='home' size={50} color='#fff' />
           </View>
-          <Text className='title'>{categorys[cid - 1].title}</Text>
+          <Text className='title'>{issue.title}</Text>
         </View>
-        <View className='title' style={{padding: '10px', background: mainColor}}>
+        <View className='title' style={{padding: '10px', background: mainColor}} onClick={this.onCopyUrl}>
           { title }
         </View>
         <View className='content'>
