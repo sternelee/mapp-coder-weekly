@@ -48,7 +48,7 @@ class Index extends Component {
     }
     const title = categorys[category - 1].title
     return {
-      title: `程序猿周报-${title}`,
+      title: `${title}`,
       path: `pages/index/index`,
       success: function (res) {
         // 转发成功
