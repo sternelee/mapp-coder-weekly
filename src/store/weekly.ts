@@ -17,7 +17,7 @@ export interface Issue {
   pid: string
   title: string
   content: string
-  content_cn: string
+  // content_cn: string
   date: string
 }
 
@@ -26,6 +26,8 @@ export interface WeeklyStoreInterface {
   category: number
   issue: Issue
   isCN: boolean
+  cTitle: string
+  targetPost: string
   setMaxPid: (id: number, pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
@@ -34,6 +36,7 @@ export interface WeeklyStoreInterface {
   getFetch: (cid, id) => Promise<any>
   getPost: (cid, id) => Promise<any>
   fetchPost: (cid, id) => Promise<any>
+  setTarget: (url: string) => void
 }
 
 
@@ -44,15 +47,18 @@ const weeklyStore: WeeklyStoreInterface = observable({
     pid: '',
     title: '',
     content: '',
-    content_cn: '',
+    // content_cn: '',
     date: ''
   },
   isCN: false,
+  cTitle: '',
+  targetPost: '',
   setMaxPid (id, pid) {
     this.categorys[id].maxId = pid
   },
   setCategory (id: number) {
     this.category = id
+    this.cTitle = this.categorys[Number(id) - 1].title
   },
   setCN (bol) {
     this.isCN = bol
@@ -62,6 +68,7 @@ const weeklyStore: WeeklyStoreInterface = observable({
       url: 'https://api.leeapps.cn/cooperpress-categories'
     })
     this.categorys = data.sort((a, b) => a.cid - b.cid).map(v => ({...v, maxId: 0}))
+    this.cTitle = this.categorys[0].title
   },
   async getIssues (cid = '1', id = 0) {
     const queryPid = id ? `&pid=${id}` : ''
@@ -106,6 +113,9 @@ const weeklyStore: WeeklyStoreInterface = observable({
       url: `https://api.leeapps.cn/koa/weekly/post?category=${cid}&id=${id}&type=markdown`
     })
     return data[0]
+  },
+  setTarget (url) {
+    this.targetPost = url
   }
 })
 export default weeklyStore

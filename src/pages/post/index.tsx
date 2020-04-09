@@ -63,12 +63,19 @@ class Index extends Component {
     }
   }
 
-  async componentWillMount () {
+  componentWillMount () {
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
     })
+  }
+
+  async componentDidShow () {
+    const { weeklyStore } = this.props
+    if (!weeklyStore.cTitle) {
+      await weeklyStore.getCategorys()
+    }
     const query = this.$router.params
     Taro.showLoading({
       title: 'Loading ...'
@@ -80,7 +87,17 @@ class Index extends Component {
       Taro.showToast({
         title: '无法拉取数据',
         duration: 1000
-      }).then(() => this.onHome())
+      }).then(() => {
+        Taro.setClipboardData({
+          data: this.props.weeklyStore.targetPost,
+          success: () => {
+            Taro.showToast({
+              title: '原文链接已复制',
+              duration: 1000
+            }).then(() => this.onHome())
+          }
+        })
+      })
       return
     }
     const content = fixUrl(data.content, url)
@@ -109,7 +126,7 @@ class Index extends Component {
       data: url,
       success: () => {
         Taro.showToast({
-          title: '复制原文链接',
+          title: '原文链接已复制',
           duration: 1000
         })
       }
@@ -118,7 +135,7 @@ class Index extends Component {
 
   render () {
     const { md, cid, title, top, topH } = this.state
-    const { categorys } = this.props.weeklyStore
+    const { categorys, cTitle } = this.props.weeklyStore
     const issue = categorys.length ? categorys[cid - 1] : {title: '', color: ''}
     const mainColor = issue.color
     return (
@@ -127,7 +144,7 @@ class Index extends Component {
           <View>
             <IconFont name='home' size={50} color='#fff' />
           </View>
-          <Text className='title'>{issue.title}</Text>
+          <Text className='title'>{cTitle}</Text>
         </View>
         <View className='title' style={{padding: '10px', background: mainColor}} onClick={this.onCopyUrl}>
           { title }

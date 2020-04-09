@@ -1,6 +1,6 @@
 import { ComponentType } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Text, Image, Switch } from '@tarojs/components'
+import { View, Text, Image, Button } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
 import RenderView from '../../components/RenderView'
 import IconFont from '../../components/iconfont'
@@ -49,7 +49,7 @@ class Index extends Component {
     const title = categorys[category - 1].title
     return {
       title: `${title}`,
-      path: `pages/index/index`,
+      path: `pages/index/index?cid=${category}`,
       success: function (res) {
         // 转发成功
         console.log("转发成功:" + JSON.stringify(res));
@@ -62,13 +62,19 @@ class Index extends Component {
   }
 
   async componentWillMount () {
+    const { weeklyStore } = this.props
+    const query = this.$router.params
+    const cid = query.cid || '1'
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
     })
-    await this.props.weeklyStore.getCategorys()
-    await this.getIssues(1, 0)
+    if (!weeklyStore.cTitle) {
+      await weeklyStore.getCategorys()
+    }
+    weeklyStore.category = Number(cid)
+    await this.getIssues(cid, 0)
   }
 
   componentWillReact () {
@@ -128,6 +134,7 @@ class Index extends Component {
     console.log(src, text)
     const isUnsubscribe = /Unsubscribe/i.test(text)
     const isOnweb = /Read on the Web/i.test(text)
+    this.props.weeklyStore.setTarget(src)
     if (isUnsubscribe || isOnweb) {
       Taro.setClipboardData({
         data: src,
@@ -146,31 +153,45 @@ class Index extends Component {
     }
   }
 
-  onBtnCn = (ev) => {
-    const { content, content_cn } = this.props.weeklyStore.issue
-    const bol = ev.detail.value
-    this.props.weeklyStore.setCN(bol)
-    if (bol && !content_cn) {
-      Taro.showToast({
-        title: '本文还未翻译',
-        duration: 1000
-      })
-    } else if (bol && content_cn) {
-      const nodes = parseHTML(content_cn)
-      this.setState({
-        nodes
-      })
-    } else {
-      const nodes = parseHTML(content)
-      this.setState({
-        nodes
-      })
-    }
+  // onBtnCn = (ev) => {
+  //   const { content, content_cn } = this.props.weeklyStore.issue
+  //   const bol = ev.detail.value
+  //   this.props.weeklyStore.setCN(bol)
+  //   if (bol && !content_cn) {
+  //     Taro.showToast({
+  //       title: '本文还未翻译',
+  //       duration: 1000
+  //     })
+  //   } else if (bol && content_cn) {
+  //     const nodes = parseHTML(content_cn)
+  //     this.setState({
+  //       nodes
+  //     })
+  //   } else {
+  //     const nodes = parseHTML(content)
+  //     this.setState({
+  //       nodes
+  //     })
+  //   }
+  // }
+
+  onUnsubscribe = () => {
+    const { cTitle } = this.props.weeklyStore
+    Taro.requestSubscribeMessage({
+      tmplIds: ['wIZ5aqHfmpQK87nN6SiA4rv97fcTUPIUz_1_LESWcnM'],
+      success: (res) => {
+        console.log(res)
+      }
+    })
+    // Taro.showToast({
+    //   title: `${cTitle}-订阅成功`,
+    //   duration: 1000
+    // })
   }
 
   render () {
     const { top, topH, isAside, nodes } = this.state
-    const { categorys, category, issue, isCN } = this.props.weeklyStore
+    const { categorys, category, issue, cTitle } = this.props.weeklyStore
     const asidePd = top + topH
     const cIndex = category - 1
     const mainColor = categorys.length ? categorys[cIndex].color : ''
@@ -182,7 +203,7 @@ class Index extends Component {
           <View>
             <IconFont name='caidan' size={50} color='#fff' />
           </View>
-          <Text className='title'>{categorys[cIndex].title}</Text>
+          <Text className='title'>{cTitle}</Text>
         </View>
         <View className='title' style={{padding: '0 10px'}}>
           { issue.title }
@@ -205,10 +226,10 @@ class Index extends Component {
               <View onClick={this.onAside}>
                 <IconFont name='caidan' size={80} color={mainColor} />
               </View>
-              <View className='btn-cn'>
+              {/* <View className='btn-cn'>
                 <Text style={{marginRight: '6px'}}>CN</Text>
                 <Switch color={mainColor} checked={isCN} onChange={this.onBtnCn} />
-              </View>
+              </View> */}
             </View>
             {
               categorys.map((v, index) =>
@@ -218,6 +239,7 @@ class Index extends Component {
                 </View>
               )
             }
+            <Button onClick={this.onUnsubscribe}>订阅</Button>
           </View>
         </View>
       </View>
