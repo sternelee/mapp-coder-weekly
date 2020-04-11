@@ -23,26 +23,28 @@ export interface Issue {
 
 export interface WeeklyStoreInterface {
   categorys: Category[]
-  category: number
+  tab: number
+  cid: number
   issue: Issue
   isCN: boolean
   cTitle: string
   targetPost: string
-  setMaxPid: (id: number, pid: number) => void
+  setMaxPid: (pid: number) => void
   setCategory: (id: number) => void
   getCategorys: () => void
-  getIssues: (cid: number | string, id?: number) => Promise<string>
+  getIssues: (id?: number) => Promise<string>
   setCN: (bol) => void
-  getFetch: (cid, id) => Promise<any>
-  getPost: (cid, id) => Promise<any>
-  fetchPost: (cid, id) => Promise<any>
+  getFetch: (id) => Promise<any>
+  getPost: (id) => Promise<any>
+  fetchPost: (id) => Promise<any>
   setTarget: (url: string) => void
 }
 
 
 const weeklyStore: WeeklyStoreInterface = observable({
   categorys: [],
-  category: 1,
+  tab: 0,
+  cid: 1,
   issue: {
     pid: '',
     title: '',
@@ -53,12 +55,13 @@ const weeklyStore: WeeklyStoreInterface = observable({
   isCN: false,
   cTitle: '',
   targetPost: '',
-  setMaxPid (id, pid) {
-    this.categorys[id].maxId = pid
+  setMaxPid (pid) {
+    this.categorys[this.tab].maxId = pid
   },
   setCategory (id: number) {
-    this.category = id
-    this.cTitle = this.categorys[Number(id) - 1].title
+    this.tab = id
+    this.cid = this.categorys[id].cid
+    this.cTitle = this.categorys[id].title
   },
   setCN (bol) {
     this.isCN = bol
@@ -67,22 +70,22 @@ const weeklyStore: WeeklyStoreInterface = observable({
     const { data } = await Taro.request({
       url: 'https://api.leeapps.cn/cooperpress-categories'
     })
-    this.categorys = data.sort((a, b) => a.cid - b.cid).map(v => ({...v, maxId: 0}))
+    this.categorys = data.sort((a, b) => a.oid - b.oid).map(v => ({...v, maxId: 0}))
     this.cTitle = this.categorys[0].title
   },
-  async getIssues (cid = '1', id = 0) {
+  async getIssues (id = 0) {
     const queryPid = id ? `&pid=${id}` : ''
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/cooperpresses?category=${cid}${queryPid}&_sort=pid:DESC&_limit=1`
+      url: `https://api.leeapps.cn/cooperpresses?category=${this.cid}${queryPid}&_sort=pid:DESC&_limit=1`
     })
     let result = data[0]
     if (!result) {
-      result = await this.getFetch(cid, id)
+      result = await this.getFetch(id)
     }
     if (result) {
       this.issue = result
       if (id === 0) {
-        this.setMaxPid(Number(cid) - 1, Number(result.pid))
+        this.setMaxPid(Number(result.pid))
       }
       if (this.isCN && result.content_cn) {
         return result.content_cn.replace(/(amp;)/g, '')
@@ -91,26 +94,26 @@ const weeklyStore: WeeklyStoreInterface = observable({
     }
     return ''
   },
-  async getFetch (cid, id) {
+  async getFetch (id) {
     const queryPid = id ? `&id=${id}` : ''
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/koa/weekly/fetch?category=${cid}${queryPid}`
+      url: `https://api.leeapps.cn/koa/weekly/fetch?category=${this.cid}${queryPid}`
     })
     return data[0]
   },
-  async getPost (cid, id) {
+  async getPost (id) {
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/cooperpress-posts?category=${cid}&pid=${id}&_limit=1`
+      url: `https://api.leeapps.cn/cooperpress-posts?category=${this.cid}&pid=${id}&_limit=1`
     })
     let result = data[0]
     if (!result) {
-      result = await this.fetchPost(cid, id)
+      result = await this.fetchPost(id)
     }
     return result
   },
-  async fetchPost (cid, id) {
+  async fetchPost (id) {
     const { data } = await Taro.request({
-      url: `https://api.leeapps.cn/koa/weekly/post?category=${cid}&id=${id}&type=markdown`
+      url: `https://api.leeapps.cn/koa/weekly/post?category=${this.cid}&id=${id}&type=markdown`
     })
     return data[0]
   },

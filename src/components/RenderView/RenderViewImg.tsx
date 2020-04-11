@@ -20,6 +20,7 @@ function RenderViewImg (props: Props) {
   }
   const node = nodes.length ? nodes[0] : null
   return (
+    attrs.src &&
     <View className={attrs.class || 'img'}>
       <Image style={style} src={attrs.src} mode='aspectFit' />
       {

@@ -36,17 +36,18 @@
     width 70%
     height 100%
     position relative
+    overflow hidden
   .aside-tool
     display: flex;
     margin: 0 30px 30px 30px;
     justify-content: space-between;
+    font-size 34px
     .btn-cn
       color: #000;
-    font-size 40px
   .category
     font-size 36px
     display flex
-    padding-left 20px
+    padding 0 20px
     align-items center
     border-bottom 2px solid #e9e9e9
     color #1c1c36
@@ -61,7 +62,18 @@
       height 60px
     text
       margin-left 20px
+    .check
+      margin-left: auto;
   .footer
     position: absolute
-    bottom 0
-    right 0
+    bottom 30px
+    left 30px
+  .subscribe-tip
+    color red
+  .subscribe
+    display flex
+    align-items: center
+    .tip
+      margin-left 20px
+      .time
+        color red

@@ -4,7 +4,7 @@
 import Taro, { FunctionComponent } from '@tarojs/taro';
 
 interface Props {
-  name: 'home' | 'caidan';
+  name: 'check' | 'check1' | 'home' | 'caidan';
   size?: number;
   color?: string | string[];
 }

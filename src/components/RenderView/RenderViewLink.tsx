@@ -14,7 +14,7 @@ function RenderViewLink (props: Props) {
   if (!nodes) return null
   const node = nodes[0]
   return (
-    node.tag === 'text' ? <Text className={attrs.class} style={attrs.style} onClick={() => onClick(attrs.href, node.text)}>{node.text}</Text> : <Image className={node.attrs.class || 'img'} src={node.attrs.src} mode='scaleToFill' />
+    node.tag === 'text' ? <Text className={attrs.class} style={attrs.style} onClick={() => onClick(attrs.href, node.text)}>{node.text}</Text> : (node.attrs.src && <Image className={node.attrs.class || 'img'} src={node.attrs.src} mode='scaleToFill' />)
   )
 }
 

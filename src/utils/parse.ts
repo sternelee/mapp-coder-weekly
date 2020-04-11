@@ -160,7 +160,7 @@ function parser(_html: string) {
     text && parseText(text);
   }
 
-  setTimeout(() => init(), 5000)
+  setTimeout(() => init(), 1000)
 
   return root.nodes;
 }

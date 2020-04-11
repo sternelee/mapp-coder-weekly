@@ -6,6 +6,7 @@ import counterStore from './store/counter'
 import weeklyStore from './store/weekly'
 
 import './app.styl'
+// import '../node_modules/taro-ui/dist/style/components/button.scss'
 
 // 如果需要在 h5 环境中开启 React Devtools
 // 取消以下注释：
