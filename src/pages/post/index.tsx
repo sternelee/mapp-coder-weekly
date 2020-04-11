@@ -34,7 +34,6 @@ class Index extends Component {
     }
   }
   state = {
-    cid: 1,
     md: '',
     title: '',
     top: 0,
@@ -51,7 +50,7 @@ class Index extends Component {
     }
     return {
       title: `${title}`,
-      path: `pages/post/index?cid=${query.cid}&id=${query.id}`,
+      path: `pages/post/index?tab=${query.tab}&id=${query.id}`,
       success: function (res) {
         // 转发成功
         console.log("转发成功:" + JSON.stringify(res));
@@ -77,10 +76,14 @@ class Index extends Component {
       await weeklyStore.getCategorys()
     }
     const query = this.$router.params
+    const tab = Number(query.tab || 0)
+    weeklyStore.tab = tab
+    weeklyStore.cid = weeklyStore.categorys[tab].cid
+    weeklyStore.cTitle = weeklyStore.categorys[tab].title
     Taro.showLoading({
       title: 'Loading ...'
     })
-    const data = await this.props.weeklyStore.getPost(query.cid, query.id)
+    const data = await this.props.weeklyStore.getPost(query.id)
     const url = data.url
     Taro.hideLoading()
     if (!data.content) {
@@ -102,7 +105,6 @@ class Index extends Component {
     }
     const content = fixUrl(data.content, url)
     this.setState({
-      cid: Number(query.cid) || 1,
       title: data.title,
       url: data.url,
       md: content
@@ -115,7 +117,7 @@ class Index extends Component {
       Taro.navigateBack()
     } else {
       Taro.navigateTo({
-        url: '/pages/index/index'
+        url: '/pages/index/index?tab=' + this.props.weeklyStore.tab
       })
     }
   }
@@ -134,20 +136,22 @@ class Index extends Component {
   }
 
   render () {
-    const { md, cid, title, top, topH } = this.state
-    const { categorys, cTitle } = this.props.weeklyStore
-    const issue = categorys.length ? categorys[cid - 1] : {title: '', color: ''}
+    const { md, title, top, topH } = this.state
+    const { categorys, cTitle, tab } = this.props.weeklyStore
+    const issue = categorys.length ? categorys[tab] : {title: '', color: ''}
     const mainColor = issue.color
     return (
       <View className='post'>
-        <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 ${top}px 10px`, height: `${topH}px`}}>
+        <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 ${top - 30}px 10px`, height: `${topH}px`}}>
           <View>
             <IconFont name='home' size={50} color='#fff' />
           </View>
           <Text className='title'>{cTitle}</Text>
         </View>
         <View className='title' style={{padding: '10px', background: mainColor}} onClick={this.onCopyUrl}>
-          { title }
+          <Text>
+            { title }
+          </Text>
         </View>
         <View className='content'>
           <wemark md={md} link highlight type='wemark' />

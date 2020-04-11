@@ -64,7 +64,7 @@ class Index extends Component {
     const title = categorys[tab].title
     return {
       title: `${title}`,
-      path: `pages/index/index?cid=${tab}`,
+      path: `pages/index/index?tab=${tab}`,
       success: function (res) {
         // 转发成功
         console.log("转发成功:" + JSON.stringify(res));
@@ -79,7 +79,7 @@ class Index extends Component {
   async componentWillMount () {
     const { weeklyStore } = this.props
     const query = this.$router.params
-    const cid = query.cid || '0'
+    const tab = Number(query.tab || 0)
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
       top: menuBtn.top + 2,
@@ -88,9 +88,9 @@ class Index extends Component {
     if (!weeklyStore.cTitle) {
       await weeklyStore.getCategorys()
     }
-    weeklyStore.tab = Number(cid)
-    weeklyStore.cid = weeklyStore.categorys[Number(cid)].cid
-    weeklyStore.cTitle = weeklyStore.categorys[Number(cid)].title
+    weeklyStore.tab = tab
+    weeklyStore.cid = weeklyStore.categorys[tab].cid
+    weeklyStore.cTitle = weeklyStore.categorys[tab].title
     await this.getIssues(0)
   }
 
@@ -166,7 +166,7 @@ class Index extends Component {
     } else {
       const id = src.match(/\/([\d]+)\//)[1]
       Taro.navigateTo({
-        url: `/pages/post/index?cid=${this.props.weeklyStore.tab}&id=${id}`
+        url: `/pages/post/index?tab=${this.props.weeklyStore.tab}&id=${id}`
       })
     }
   }
@@ -335,7 +335,7 @@ class Index extends Component {
           </View>
           <Text className='title'>{cTitle}</Text>
         </View>
-        <View className='title' style={{padding: '0 10px'}}>
+        <View className='title' style={{padding: '10px'}}>
           { issue.title }
         </View>
         <View className='menu'>
