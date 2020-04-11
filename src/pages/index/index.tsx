@@ -38,7 +38,7 @@ class Index extends Component {
   state: {
     isAside: boolean
     top: number
-    topH: number
+    // topH: number
     nodes: any[]
     count: number
     isSubscribe: boolean
@@ -47,7 +47,7 @@ class Index extends Component {
   } = {
     isAside: false,
     top: 0,
-    topH: 0,
+    // topH: 0,
     nodes: [],
     count: 0,
     isSubscribe: false,
@@ -81,12 +81,12 @@ class Index extends Component {
     const query = this.$router.params
     const cid = Number(query.cid || 1)
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
-    const device = Taro.getSystemInfoSync()
-    console.log(device)
-    console.log(menuBtn)
+    // const device = Taro.getSystemInfoSync()
+    // console.log(device)
+    // console.log(menuBtn)
     this.setState({
       top: menuBtn.top + 2,
-      topH: menuBtn.height
+      // topH: menuBtn.height
     })
     if (!weeklyStore.cTitle) {
       await weeklyStore.getCategorys()
@@ -197,11 +197,30 @@ class Index extends Component {
         })
       }
     })
-    Taro.getStorage({
-      key: 'openid',
+    try {
+      const openid = Taro.getStorageSync('openid')
+      this.setState({
+        openid
+      })
+    } catch(e) {
+      this.onLogin()
+    }
+  }
+
+  onLogin = () => {
+    Taro.login({
       success: (res) => {
-        this.setState({
-          openid: res.data
+        Taro.request({
+          url: `https://api.leeapps.cn/koa/auth?js_code=${res.code}`
+        }).then(result => {
+          console.log(result)
+          this.setState({
+            openid: result.data.openid
+          })
+          Taro.setStorage({
+            key: 'openid',
+            data: result.data.openid
+          })
         })
       }
     })
@@ -259,36 +278,11 @@ class Index extends Component {
     this.setState({
       isSubscribe: false
     })
-    this.onFetchOpenid()
     await Taro.setStorage({
       key: 'cids',
       data: cids
     })
-  }
-
-  onFetchOpenid = () => {
-    const { openid } = this.state
-    if (openid) {
-      this.onReuestMessage()
-    } else {
-      Taro.login({
-        success: (res) => {
-          Taro.request({
-            url: `https://api.leeapps.cn/koa/auth?js_code=${res.code}`
-          }).then(result => {
-            console.log(result)
-            this.setState({
-              openid: result.data.openid
-            })
-            Taro.setStorage({
-              key: 'openid',
-              data: result.data.openid
-            })
-            this.onReuestMessage()
-          })
-        }
-      })
-    }
+    this.onReuestMessage()
   }
 
   onReuestMessage = () => {
@@ -330,7 +324,7 @@ class Index extends Component {
   }
 
   render () {
-    const { top, topH, isAside, nodes, count, isSubscribe, cids } = this.state
+    const { top, isAside, nodes, count, isSubscribe, cids } = this.state
     const { categorys, tab, issue, cTitle } = this.props.weeklyStore
     // const asidePd = top + topH
     const mainColor = categorys.length ? categorys[tab].color : ''
