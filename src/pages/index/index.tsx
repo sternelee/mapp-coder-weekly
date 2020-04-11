@@ -56,7 +56,7 @@ class Index extends Component {
   }
 
   onShareAppMessage (ops) {
-    const { tab, categorys } = this.props.weeklyStore
+    const { tab, categorys, cid } = this.props.weeklyStore
     if (ops.from === 'button') {
       // 来自页面内转发按钮
       console.log(ops.target)
@@ -64,7 +64,7 @@ class Index extends Component {
     const title = categorys[tab].title
     return {
       title: `${title}`,
-      path: `pages/index/index?tab=${tab}`,
+      path: `pages/index/index?cid=${cid}`,
       success: function (res) {
         // 转发成功
         console.log("转发成功:" + JSON.stringify(res));
@@ -79,8 +79,11 @@ class Index extends Component {
   async componentWillMount () {
     const { weeklyStore } = this.props
     const query = this.$router.params
-    const tab = Number(query.tab || 0)
+    const cid = Number(query.cid || 1)
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
+    const device = Taro.getSystemInfoSync()
+    console.log(device)
+    console.log(menuBtn)
     this.setState({
       top: menuBtn.top + 2,
       topH: menuBtn.height
@@ -88,8 +91,10 @@ class Index extends Component {
     if (!weeklyStore.cTitle) {
       await weeklyStore.getCategorys()
     }
+    const cids = weeklyStore.categorys.map(v => Number(v.cid))
+    const tab = cids.indexOf(cid)
     weeklyStore.tab = tab
-    weeklyStore.cid = weeklyStore.categorys[tab].cid
+    weeklyStore.cid = cid
     weeklyStore.cTitle = weeklyStore.categorys[tab].title
     await this.getIssues(0)
   }
@@ -166,7 +171,7 @@ class Index extends Component {
     } else {
       const id = src.match(/\/([\d]+)\//)[1]
       Taro.navigateTo({
-        url: `/pages/post/index?tab=${this.props.weeklyStore.tab}&id=${id}`
+        url: `/pages/post/index?cid=${this.props.weeklyStore.cid}&id=${id}`
       })
     }
   }
@@ -177,7 +182,7 @@ class Index extends Component {
         console.log(res)
         if (res.subscriptionsSetting) {
           const subs: any = res.subscriptionsSetting
-          const tids = SubscribeIds.filter(v => subs[v])
+          const tids = SubscribeIds.filter(v => subs[v] && subs[v] === 'accept')
           this.setState({
             count: tids.length
           })
@@ -289,10 +294,11 @@ class Index extends Component {
   onReuestMessage = () => {
     const { openid, cids } = this.state
     Taro.requestSubscribeMessage({
-      tmplIds: SubscribeIds,
+      tmplIds: [SubscribeIds[0]],
       success: (res) => {
         console.log(res)
         const tids = SubscribeIds.filter(v => res[v] && res[v] === 'accept')
+        if (tids.length === 0) return
         Taro.request({
           method: 'POST',
           url: 'https://api.leeapps.cn/koa/weekly/subscribe',
@@ -304,6 +310,9 @@ class Index extends Component {
         }).then(result => {
           console.log(result)
           if (result.data && result.data.code === 0) {
+            this.setState({
+              count: 1
+            })
             Taro.showToast({
               title: `订阅成功`,
               icon: 'success',
@@ -329,7 +338,7 @@ class Index extends Component {
     const curId = Number(issue.pid)
     return (
       <View className='index'>
-        <View className='header' onClick={this.onAside} style={{background: mainColor, padding: `${top}px 0 ${top - 30}px 10px`, height: `${topH}px`}}>
+        <View className='header' onClick={this.onAside} style={{background: mainColor, padding: `${top}px 0 0 10px`, height: `35px`}}>
           <View>
             <IconFont name='caidan' size={50} color='#fff' />
           </View>
@@ -384,16 +393,17 @@ class Index extends Component {
               )
             }
             <View className='footer'>
-              <View className='contact'>
+              {/* <View className='contact'>
                 <Button openType='contact' type='primary' size='mini'>交流</Button>
-              </View>
+              </View> */}
               <View className='subscribe'>
-                <Button onClick={this.onSubscribe} type={count > 0 ? 'primary' : 'warn'} size='mini'>{isSubscribe ? '确定订阅' : '订阅更新'}</Button>
-                <View className='tip' style={{color: mainColor}}>
+                {/* <Button openType='contact' size='mini' style={{background: mainColor}}>交流</Button> */}
+                <Button style={{marginLeft: '10px', background: mainColor, color: count > 0 ? '#fff' : '#000'}} onClick={this.onSubscribe} size='mini'>{isSubscribe ? '确定订阅' : (count > 0 ? '已订阅' : '订阅更新')}</Button>
+                {/* <View className='tip' style={{color: mainColor}}>
                   <Text>通知剩余: </Text>
                   <Text className='time'>{count}</Text>
                   <Text>次</Text>
-                </View>
+                </View> */}
               </View>
             </View>
           </View>

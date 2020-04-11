@@ -50,7 +50,7 @@ class Index extends Component {
     }
     return {
       title: `${title}`,
-      path: `pages/post/index?tab=${query.tab}&id=${query.id}`,
+      path: `pages/post/index?cid=${query.cid}&id=${query.id}`,
       success: function (res) {
         // 转发成功
         console.log("转发成功:" + JSON.stringify(res));
@@ -76,9 +76,11 @@ class Index extends Component {
       await weeklyStore.getCategorys()
     }
     const query = this.$router.params
-    const tab = Number(query.tab || 0)
+    const cid = Number(query.cid || 0)
+    const cids = weeklyStore.categorys.map(v => Number(v.cid))
+    const tab = cids.indexOf(cid)
     weeklyStore.tab = tab
-    weeklyStore.cid = weeklyStore.categorys[tab].cid
+    weeklyStore.cid = cid
     weeklyStore.cTitle = weeklyStore.categorys[tab].title
     Taro.showLoading({
       title: 'Loading ...'
@@ -117,7 +119,7 @@ class Index extends Component {
       Taro.navigateBack()
     } else {
       Taro.navigateTo({
-        url: '/pages/index/index?tab=' + this.props.weeklyStore.tab
+        url: '/pages/index/index?cid=' + this.props.weeklyStore.cid
       })
     }
   }
