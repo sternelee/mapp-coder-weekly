@@ -235,13 +235,13 @@ class Index extends Component {
     }
   }
 
-  onCheck = (cid) => {
-    console.log(cid)
+  onCheck = (id) => {
     let { cids } = this.state
-    if (cids.length >= 3) return
+    const cid = Number(id)
     if (cids.includes(cid)) {
-      cids = cids.filter(v => v !== cid)
+      cids = cids.filter(v => v != cid)
     } else {
+      if (cids.length >= 3) return
       cids.push(cid)
     }
     this.setState({
@@ -352,14 +352,18 @@ class Index extends Component {
         </View>
         <View className={isAside ? 'aside' : 'aside hide'}>
           <View className='inner'>
-            <View className='aside-tool' style={{marginTop: `${top}px`}}>
-              <View onClick={this.onAside}>
+            <View className='aside-tool' onClick={this.onAside} style={{marginTop: `${top}px`}}>
+              <View>
                 <IconFont name='caidan' size={80} color={mainColor} />
               </View>
               {
                 isSubscribe &&
                 <Text className='subscribe-tip'>最多关注三个主题</Text>
               }
+              {/* {
+                !isSubscribe &&
+                <Text className='subscribe-tip'>更多请联系客服</Text>
+              } */}
               {/* <View className='btn-cn'>
                 <Text style={{marginRight: '6px'}}>CN</Text>
                 <Switch color={mainColor} checked={isCN} onChange={this.onBtnCn} />
@@ -368,12 +372,12 @@ class Index extends Component {
             {
               categorys.map((v, index) =>
                 <View className={index === tab ? 'category on' : 'category'} key={index} style={{background: index === tab ? mainColor : ''}}>
-                  <Image src={v.img} mode='scaleToFill' />
+                  <Image onClick={this.onCategory.bind(this, index)} src={v.img} mode='scaleToFill' />
                   <Text onClick={this.onCategory.bind(this, index)}>{v.title}</Text>
                   {
                     isSubscribe &&
                     <View className='check' onClick={this.onCheck.bind(this, v.cid)}>
-                      <IconFont name={cids.includes(v.cid) ? 'check1' : 'check'} size={50} color={index === tab ? '#fff' : mainColor} />
+                      <IconFont name={cids.includes(Number(v.cid)) ? 'check1' : 'check'} size={50} color={index === tab ? '#fff' : mainColor} />
                     </View>
                   }
                 </View>
