@@ -37,7 +37,6 @@ class Index extends Component {
     md: '',
     title: '',
     top: 0,
-    topH: 0,
     url: ''
   }
 
@@ -65,8 +64,7 @@ class Index extends Component {
   componentWillMount () {
     const menuBtn = Taro.getMenuButtonBoundingClientRect()
     this.setState({
-      top: menuBtn.top + 2,
-      topH: menuBtn.height
+      top: menuBtn.top + 2
     })
   }
 
@@ -138,13 +136,13 @@ class Index extends Component {
   }
 
   render () {
-    const { md, title, top, topH } = this.state
+    const { md, title, top } = this.state
     const { categorys, cTitle, tab } = this.props.weeklyStore
     const issue = categorys.length ? categorys[tab] : {title: '', color: ''}
     const mainColor = issue.color
     return (
       <View className='post'>
-        <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 ${top - 30}px 10px`, height: `${topH}px`}}>
+        <View className='header' onClick={this.onHome} style={{background: mainColor, padding: `${top}px 0 0 10px`, height: `35px`}}>
           <View>
             <IconFont name='home' size={50} color='#fff' />
           </View>
