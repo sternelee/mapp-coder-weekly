@@ -361,7 +361,7 @@ class Index extends Component {
               </View>
               {
                 isSubscribe &&
-                <Text className='subscribe-tip'>最多关注三个主题</Text>
+                <Text className='subscribe-tip' style={{color: mainColor}}>最多关注三个主题</Text>
               }
               {/* {
                 !isSubscribe &&
@@ -391,9 +391,9 @@ class Index extends Component {
                 <Button openType='contact' type='primary' size='mini'>交流</Button>
               </View> */}
               <View className='subscribe'>
-                {/* <Button openType='contact' size='mini' style={{background: mainColor}}>交流</Button> */}
-                <Button style={{marginLeft: '10px', background: mainColor, color: count > 0 ? '#fff' : '#000'}} onClick={this.onSubscribe} size='mini'>{isSubscribe ? '确定订阅' : (count > 0 ? '已订阅' : '订阅更新')}</Button>
-                {/* <View className='tip' style={{color: mainColor}}>
+                <Button openType='contact' size='mini' style={{background: mainColor, color: '#fff'}}>建议</Button>
+                <Button style={{marginLeft: '10px', background: mainColor, fontWeight: count > 0 ? 'normal' : 600, color: '#fff'}} onClick={this.onSubscribe} size='mini'>{isSubscribe ? '确定订阅' : (count > 0 ? '已订阅' : '订阅更新')}</Button>
+                {/* <View className='tip' style={{color: mainColor}}></View>
                   <Text>通知剩余: </Text>
                   <Text className='time'>{count}</Text>
                   <Text>次</Text>
