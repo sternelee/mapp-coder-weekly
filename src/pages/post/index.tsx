@@ -1,5 +1,5 @@
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Text } from '@tarojs/components'
+import { View, Text, Image } from '@tarojs/components'
 import { observer, inject } from '@tarojs/mobx'
 import { WeeklyStoreInterface } from '../../store/weekly'
 import IconFont from '../../components/iconfont'
@@ -37,6 +37,7 @@ class Index extends Component {
     md: '',
     title: '',
     top: 0,
+    img: '',
     url: ''
   }
 
@@ -107,6 +108,7 @@ class Index extends Component {
     this.setState({
       title: data.title,
       url: data.url,
+      img: data.lead_image_url,
       md: content
     })
   }
@@ -136,7 +138,7 @@ class Index extends Component {
   }
 
   render () {
-    const { md, title, top } = this.state
+    const { md, title, top, img } = this.state
     const { categorys, cTitle, tab } = this.props.weeklyStore
     const issue = categorys.length ? categorys[tab] : {title: '', color: ''}
     const mainColor = issue.color
@@ -154,6 +156,10 @@ class Index extends Component {
           </Text>
         </View>
         <View className='content'>
+          {
+            img &&
+            <Image src={img} mode='aspectFit' />
+          }
           <wemark md={md} link highlight type='wemark' />
         </View>
       </View>

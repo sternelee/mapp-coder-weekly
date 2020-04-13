@@ -1,0 +1,14 @@
+<block wx:if="{{$taroCompReady}}">
+    <block wx:if="{{!nodes}}">
+        <view></view>
+    </block>
+    <block wx:else>
+        <block wx:if="{{node.tag === 'text'}}"><text class="{{attrs.class}}" style="{{anonymousState__temp}}" bindtap="anonymousFunc0">{{node.text}}</text>
+        </block>
+        <block wx:else>
+            <block wx:if="{{node.attrs.src}}">
+                <image class="{{node.attrs.class || 'img'}}" src="{{node.attrs.src}}" mode="scaleToFill"></image>
+            </block>
+        </block>
+    </block>
+</block>
