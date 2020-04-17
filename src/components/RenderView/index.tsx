@@ -8,7 +8,7 @@ import './index.styl'
 
 type Props = NodeType & {
   text?: string
-  onClick: (src) => void
+  onClick: (src, text) => void
 }
 
 function RenderView (props: Props) {

@@ -1,0 +1,9 @@
+<block wx:if="{{$taroCompReady}}">
+    <block wx:if="{{attrs.src}}">
+        <view class="{{attrs.class || 'img'}}">
+            <image style="{{anonymousState__temp}}" src="{{attrs.src}}" mode="aspectFit"></image>
+            <block wx:if="{{node}}"><text>{{node.text}}</text>
+            </block>
+        </view>
+    </block>
+</block>

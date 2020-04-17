@@ -44,6 +44,7 @@ class Index extends Component {
     isSubscribe: boolean
     cids: number[]
     openid: string
+    tids: string[]
   } = {
     isAside: false,
     top: 0,
@@ -52,7 +53,8 @@ class Index extends Component {
     count: 0,
     isSubscribe: false,
     cids: [],
-    openid: ''
+    openid: '',
+    tids: []
   }
 
   onShareAppMessage (ops) {
@@ -184,6 +186,7 @@ class Index extends Component {
           const subs: any = res.subscriptionsSetting
           const tids = SubscribeIds.filter(v => subs[v] && subs[v] === 'accept')
           this.setState({
+            tids,
             count: tids.length
           })
         }
@@ -265,7 +268,6 @@ class Index extends Component {
     if (cids.includes(cid)) {
       cids = cids.filter(v => v != cid)
     } else {
-      if (cids.length >= 3) return
       cids.push(cid)
     }
     this.setState({
@@ -286,38 +288,44 @@ class Index extends Component {
   }
 
   onReuestMessage = () => {
-    const { openid, cids } = this.state
+    const { tids } = this.state
+    if (tids.length) {
+      return this.saveSubscribe()
+    }
     Taro.requestSubscribeMessage({
       tmplIds: [SubscribeIds[0]],
       success: (res) => {
         console.log(res)
-        const tids = SubscribeIds.filter(v => res[v] && res[v] === 'accept')
+        const _tids = SubscribeIds.filter(v => res[v] && res[v] === 'accept')
         if (tids.length === 0) return
-        Taro.request({
-          method: 'POST',
-          url: 'https://api.leeapps.cn/koa/weekly/subscribe',
-          data: {
-            openid,
-            cids,
-            tids
-          }
-        }).then(result => {
-          console.log(result)
-          if (result.data && result.data.code === 0) {
-            this.setState({
-              count: 1
-            })
-            Taro.showToast({
-              title: `订阅成功`,
-              icon: 'success',
-              duration: 1000
-            })
-          } else {
-            Taro.showToast({
-              title: `订阅失败,请重试`,
-              duration: 1000
-            })
-          }
+        this.setState({
+          tids: _tids
+        }, () => this.saveSubscribe())
+      }
+    })
+  }
+
+  saveSubscribe = () => {
+    const { openid, cids, tids } = this.state
+    Taro.request({
+      method: 'POST',
+      url: 'https://api.leeapps.cn/koa/weekly/subscribe',
+      data: {
+        openid,
+        cids,
+        tids
+      }
+    }).then(result => {
+      if (result.data && result.data.code === 0) {
+        Taro.showToast({
+          title: `订阅成功`,
+          icon: 'success',
+          duration: 1000
+        })
+      } else {
+        Taro.showToast({
+          title: `订阅失败,请重试`,
+          duration: 1000
         })
       }
     })
@@ -361,7 +369,7 @@ class Index extends Component {
               </View>
               {
                 isSubscribe &&
-                <Text className='subscribe-tip' style={{color: mainColor}}>最多关注三个主题</Text>
+                <Text className='subscribe-tip' style={{color: mainColor}}>建议保持订阅通知</Text>
               }
               {/* {
                 !isSubscribe &&
