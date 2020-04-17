@@ -2,7 +2,7 @@
     <view class="index">
         <view class="header" bindtap="onAside" style="{{anonymousState__temp}}">
             <view>
-                <icon-font compid="{{$compid__39}}"></icon-font>
+                <icon-font compid="{{$compid__38}}"></icon-font>
             </view><text class="title">{{cTitle}}</text>
         </view>
         <view class="title" style="{{anonymousState__temp2}}">{{issue.title}}</view>
@@ -12,14 +12,14 @@
         </view>
         <view class="issue">
             <block wx:if="{{nodes.length}}">
-                <render-view wx:key="index" wx:for="{{loopArray12}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__37}}"></render-view>
+                <render-view wx:key="index" wx:for="{{loopArray12}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__36}}"></render-view>
             </block>
         </view>
         <view class="{{isAside ? 'aside' : 'aside hide'}}">
             <view class="inner">
                 <view class="aside-tool" bindtap="onAside" style="{{anonymousState__temp3}}">
                     <view>
-                        <icon-font compid="{{$compid__40}}"></icon-font>
+                        <icon-font compid="{{$compid__39}}"></icon-font>
                     </view>
                     <block wx:if="{{isSubscribe}}"><text class="subscribe-tip" style="{{anonymousState__temp4}}">建议保持订阅通知</text>
                     </block>
@@ -28,7 +28,7 @@
                     <image bindtap="onCategory" src="{{v.$original.img}}" mode="scaleToFill" data-e-tap-so="this" data-e-tap-a-a="{{index}}"></image><text bindtap="onCategory" data-e-tap-so="this" data-e-tap-a-a="{{index}}">{{v.$original.title}}</text>
                     <block wx:if="{{isSubscribe}}">
                         <view class="check" bindtap="onCheck" data-e-tap-so="this" data-e-tap-a-a="{{v.$original.cid}}">
-                            <icon-font compid="{{v.$compid__38}}"></icon-font>
+                            <icon-font compid="{{v.$compid__37}}"></icon-font>
                         </view>
                     </block>
                 </view>
