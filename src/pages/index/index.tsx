@@ -109,7 +109,7 @@ class Index extends Component {
 
   componentWillUnmount () { }
 
-  componentDidShow () { 
+  componentDidShow () {
     this.checkSetting()
   }
 
@@ -338,6 +338,7 @@ class Index extends Component {
     const mainColor = categorys.length ? categorys[tab].color : ''
     const maxId = categorys.length ? categorys[tab].maxId : 0
     const curId = Number(issue.pid)
+    console.log('更新 侧边栏')
     return (
       <View className='index'>
         <View className='header' onClick={this.onAside} style={{background: mainColor, padding: `${top}px 0 0 10px`, height: `35px`}}>

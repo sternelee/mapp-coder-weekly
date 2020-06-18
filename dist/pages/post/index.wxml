@@ -2,7 +2,7 @@
     <view class="post">
         <view class="header" bindtap="onHome" style="{{anonymousState__temp}}">
             <view>
-                <icon-font compid="{{$compid__45}}"></icon-font>
+                <icon-font compid="{{$compid__40}}"></icon-font>
             </view><text class="title">{{cTitle}}</text>
         </view>
         <view class="title" style="{{anonymousState__temp2}}" bindtap="onCopyUrl"><text>{{title}}</text>
