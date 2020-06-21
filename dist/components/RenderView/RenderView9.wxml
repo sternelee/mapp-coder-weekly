@@ -1,8 +1,8 @@
 <block wx:if="{{$taroCompReady}}">
     <block wx:if="{{tag === 'a'}}">
-        <render-view-link compid="{{$compid__67}}"></render-view-link>
+        <render-view-link compid="{{$compid__63}}"></render-view-link>
     </block>
     <block wx:elif="{{tag === 'img'}}">
-        <render-view-img compid="{{$compid__68}}"></render-view-img>
+        <render-view-img compid="{{$compid__64}}"></render-view-img>
     </block><text class="{{tag + ' ' + (attrs.class || '')}}" style="{{anonymousState__temp}}" wx:else>{{text}}</text>
 </block>

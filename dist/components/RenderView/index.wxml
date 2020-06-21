@@ -1,12 +1,12 @@
 <block wx:if="{{$taroCompReady}}">
     <view class="{{tag + ' ' + (attrs.class || '')}}" style="{{anonymousState__temp}}">
         <block wx:if="{{tag === 'a'}}">
-            <render-view-link compid="{{$compid__42}}"></render-view-link>
+            <render-view-link compid="{{$compid__40}}"></render-view-link>
         </block>
         <block wx:if="{{tag === 'text'}}"><text>{{text}}</text>
         </block>
         <block wx:if="{{anonymousState__temp2}}">
-            <render-view-0 wx:key="index" wx:for="{{loopArray14}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__41}}"></render-view-0>
+            <render-view-0 wx:key="index" wx:for="{{loopArray13}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__39}}"></render-view-0>
         </block>
     </view>
 </block>

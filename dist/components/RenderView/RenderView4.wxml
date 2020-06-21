@@ -1,15 +1,15 @@
 <block wx:if="{{$taroCompReady}}">
     <block wx:if="{{tag === 'a'}}">
-        <render-view-link compid="{{$compid__65}}"></render-view-link>
+        <render-view-link compid="{{$compid__48}}"></render-view-link>
     </block>
     <block wx:elif="{{tag === 'img'}}">
-        <render-view-img compid="{{$compid__66}}"></render-view-img>
+        <render-view-img compid="{{$compid__49}}"></render-view-img>
     </block>
     <block wx:elif="{{tag === 'text'}}"><text class="{{tag + ' ' + (attrs.class || '')}}" style="{{_$anonymousState__temp}}">{{text}}</text>
     </block>
     <view class="{{tag + ' ' + (attrs.class || '')}}" style="{{anonymousState__temp2}}" wx:else>
         <block wx:if="{{anonymousState__temp3}}">
-            <render-view-5 wx:key="index" wx:for="{{loopArray22}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__64}}"></render-view-5>
+            <render-view-5 wx:key="index" wx:for="{{loopArray16}}" wx:for-item="node" wx:for-index="index" compid="{{node.$compid__47}}"></render-view-5>
         </block>
     </view>
 </block>

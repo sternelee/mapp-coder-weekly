@@ -9,7 +9,7 @@ import parseHTML from '../../utils/parse'
 
 import './index.styl'
 
-const SubscribeIds = ['wIZ5aqHfmpQK87nN6SiA4iov86Uy8X05yEDnp-qdgpo', 'wIZ5aqHfmpQK87nN6SiA4kPdtBsIjrbfRZM83eDmSeY', 'wIZ5aqHfmpQK87nN6SiA4okb5JDOfYQphiaRKH3gUvA']
+const SubscribeId = ['wIZ5aqHfmpQK87nN6SiA4iov86Uy8X05yEDnp-qdgpo']
 
 type PageStateProps = {
   weeklyStore: WeeklyStoreInterface
@@ -184,12 +184,15 @@ class Index extends Component {
         console.log(res)
         if (res.subscriptionsSetting) {
           const subs: any = res.subscriptionsSetting
-          const tids = SubscribeIds.filter(v => subs[v] && subs[v] === 'accept')
+          const tids = SubscribeId.filter(v => subs[v] && subs[v] === 'accept')
           this.setState({
             tids,
             count: tids.length
           })
         }
+      },
+      fail: (res) => {
+        console.log('getSetting', res)
       }
     })
     Taro.getStorage({
@@ -202,6 +205,7 @@ class Index extends Component {
     })
     try {
       const openid = Taro.getStorageSync('openid')
+      if (!openid) return this.onLogin()
       this.setState({
         openid
       })
@@ -254,7 +258,7 @@ class Index extends Component {
   onSubscribe = () => {
     const { isSubscribe } = this.state
     if (isSubscribe) {
-      this.onSubscribeOk()
+      this.onReuestMessage()
     } else {
       this.setState({
         isSubscribe: true
@@ -275,29 +279,23 @@ class Index extends Component {
     })
   }
 
-  onSubscribeOk = async () => {
-    const { cids } = this.state;
-    this.setState({
-      isSubscribe: false
-    })
-    await Taro.setStorage({
-      key: 'cids',
-      data: cids
-    })
-    this.onReuestMessage()
-  }
-
   onReuestMessage = () => {
-    const { tids } = this.state
-    if (tids.length) {
-      return this.saveSubscribe()
-    }
+    const { cids } = this.state
+    // if (tids.length) {
+    //   return this.saveSubscribe()
+    // }
     Taro.requestSubscribeMessage({
-      tmplIds: [SubscribeIds[0]],
+      tmplIds: [SubscribeId[0]],
       success: (res) => {
-        console.log(res)
-        const _tids = SubscribeIds.filter(v => res[v] && res[v] === 'accept')
-        if (tids.length === 0) return
+        this.setState({
+          isSubscribe: false
+        })
+        const _tids = SubscribeId.filter(v => res[v] && res[v] === 'accept')
+        if (_tids.length === 0) return
+        Taro.setStorage({
+          key: 'cids',
+          data: cids
+        })
         this.setState({
           tids: _tids
         }, () => this.saveSubscribe())

@@ -1,15 +1,16 @@
 {
-	"projectname": "mapp-coder-weekly",
-	"description": "mapp-coder-weekly",
-	"appid": "wx1b925896c27d57ba",
-	"setting": {
-		"urlCheck": true,
-		"es6": false,
-		"postcss": false,
-		"minified": false
-	},
-	"compileType": "miniprogram",
-	"simulatorType": "wechat",
-	"simulatorPluginLibVersion": {},
-	"condition": {}
+  "miniprogramRoot": "./",
+  "projectname": "mapp-coder-weekly",
+  "description": "mapp-coder-weekly",
+  "appid": "wx1b925896c27d57ba",
+  "setting": {
+    "urlCheck": true,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {}
 }
